@@ -136,6 +136,12 @@ button{font-family:inherit;color:inherit}
 .card.hint .card-back{animation:hintGlow .5s ease 3;border-color:var(--accent-yellow)}
 @keyframes hintGlow{50%{box-shadow:0 0 22px var(--accent-yellow),inset 0 0 14px rgba(255,230,0,.5);transform:scale(1.06)}}
 
+.peek-banner{display:none;width:100%;margin-bottom:.7rem;padding:.5rem .75rem;border-radius:12px;border:2px solid var(--accent-yellow);background:rgba(255,230,0,.1);align-items:center;gap:.5rem;flex-wrap:wrap;font-weight:700}
+.peek-banner.show{display:flex}
+.peek-banner b{font-family:'Press Start 2P',monospace;font-size:.8rem;color:var(--accent-yellow);margin-left:auto}
+.peek-bar{flex-basis:100%;height:6px;border-radius:3px;background:rgba(255,255,255,.12);overflow:hidden}
+.peek-bar i{display:block;height:100%;width:100%;background:var(--accent-yellow);transition:width .1s linear}
+.toggle.forced{opacity:.7;pointer-events:none}
 .floating{position:fixed;pointer-events:none;font-family:'Press Start 2P',monospace;font-size:.8rem;z-index:150;animation:floatUp 1s ease-out forwards;text-shadow:0 0 6px #000}
 @keyframes floatUp{from{opacity:1;transform:translate(-50%,0)}to{opacity:0;transform:translate(-50%,-55px)}}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--card-bg);border:1px solid var(--accent-neon);padding:.6rem 1rem;border-radius:10px;z-index:300;font-weight:700;box-shadow:0 0 16px rgba(0,243,255,.4);animation:fadeIn .25s ease}
@@ -267,6 +273,11 @@ button{font-family:inherit;color:inherit}
     <div class="stat-card" id="combo-card"><span class="stat-label"><i class="fa-solid fa-fire"></i> Combo</span><span class="stat-value" id="combo-display">x0</span></div>
   </div>
 
+  <div class="peek-banner" id="peek-banner" role="status" aria-live="polite">
+    <span id="peek-text">👀 Memorize as cartas!</span><b id="peek-sec">0.0s</b>
+    <div class="peek-bar"><i id="peek-fill"></i></div>
+  </div>
+
   <div class="board-wrap"><div class="memory-grid medium" id="memory-grid" role="group" aria-label="Tabuleiro do jogo da memória"></div></div>
 </div>
 
@@ -288,6 +299,7 @@ button{font-family:inherit;color:inherit}
     <h2><i class="fa-solid fa-book-open"></i> Como Jogar</h2>
     <ul class="how">
       <li>Vire duas cartas por vez e encontre os pares. O tempo só começa na <strong>primeira carta virada</strong>.</li>
+      <li><strong>Espiadinha 👀:</strong> antes de começar, todas as cartas aparecem por alguns segundos (com contagem na tela, e esse tempo <em>não</em> conta no cronômetro). Desligando-a, você joga no modo "sem espiadinha 🧠", marcado nos recordes.</li>
       <li><strong>Solo:</strong> acertos seguidos formam um <strong>combo</strong> e valem mais pontos. Errar custa 10 pontos.</li>
       <li><strong>Estrelas ⭐:</strong> dependem de poucas jogadas <em>e</em> de muitos pontos ao mesmo tempo. Terminou a partida, ganhou ao menos 1.</li>
       <li><strong>2 Jogadores:</strong> quem acerta joga de novo; quem erra passa a vez. Vence quem tiver mais pares.</li>
@@ -479,7 +491,7 @@ const S = {
   mode:'1', diff:'medium', theme:'pixel',
   flipped:[], matched:0, moves:0, seconds:0, elapsedMs:0, startedAt:0, timer:null,
   running:false, paused:false, locked:false, over:false, combo:0, bestCombo:0, score:0,
-  hints:3, player:1, scores:[0,0,0], gen:0, limit:0, bonus:0, shareText:''
+  hints:3, player:1, scores:[0,0,0], gen:0, limit:0, bonus:0, shareText:'', previewing:false, peeked:true
 };
 
 function dailyTheme(){
@@ -509,7 +521,10 @@ function syncMenu(){
   $('theme-group').classList.toggle('locked', cfg.mode === 'd');
   iconToggle($('toggle-sound'), cfg.sound, 'fa-volume-high', 'fa-volume-xmark', 'Efeitos');
   iconToggle($('toggle-music'), cfg.music, 'fa-music', 'fa-music', 'Música');
-  $('toggle-peek').classList.toggle('active', cfg.peek);
+  const forced = cfg.mode === 'd';
+  $('toggle-peek').classList.toggle('active', forced || cfg.peek);
+  $('toggle-peek').classList.toggle('forced', forced);
+  $('toggle-peek').innerHTML = `<i class="fa-solid fa-eye"></i>Espiadinha<small>${forced ? 'sempre ligada' : 'prévia de'} ${(difficulty[e.diff].peek / 1000).toFixed(1).replace('.', ',')}s</small>`;
   AudioFX.enabled = cfg.sound; Music.on = cfg.music;
   $('sound-quick').innerHTML = `<i class="fa-solid ${cfg.sound ? 'fa-volume-high' : 'fa-volume-xmark'}"></i>`;
   $('music-quick').innerHTML = `<i class="fa-solid fa-music"></i>`;
@@ -566,7 +581,7 @@ $('win-menu-btn').addEventListener('click', () => { closeModal('win-modal'); goM
 $('restart-game-btn').addEventListener('click', initGame);
 $('play-again-btn').addEventListener('click', () => { closeModal('win-modal'); initGame(); });
 function goMenu(){
-  stopTimer(); Music.stop(); S.gen++; S.running = false; S.paused = false; S.over = true;
+  stopTimer(); Music.stop(); S.gen++; S.running = false; S.paused = false; S.over = true; S.previewing = false; hidePeekBanner();
   grid.style.visibility = ''; closeModal('pause-modal'); showScreen('welcome');
 }
 document.querySelectorAll('.closeModal').forEach(b => b.addEventListener('click', () => closeModal(b.dataset.target)));
@@ -607,7 +622,7 @@ function stopTimer(){ if(S.timer){ tick(); clearInterval(S.timer); S.timer = nul
 
 /* ================= Pausa ================= */
 function pauseGame(){
-  if(!gameScreen.classList.contains('active') || S.over || S.paused) return;
+  if(!gameScreen.classList.contains('active') || S.over || S.paused || S.previewing) return;
   S.paused = true; stopTimer(); Music.stop(); grid.style.visibility = 'hidden'; openModal('pause-modal');
 }
 function resumeGame(){
@@ -673,16 +688,49 @@ function initGame(){
   Music.start();
 
   const cards = [...grid.children];
-  if(cfg.peek){
-    setTimeout(() => { if(gen === S.gen) cards.forEach(c => c.classList.add('flipped')); }, 350);
+  const usePeek = S.mode === 'd' ? true : cfg.peek;   // desafio do dia: todos têm a mesma prévia
+  S.peeked = usePeek; S.previewing = false;
+  hidePeekBanner();
+  if(usePeek){
+    S.previewing = true;
+    showPeekBanner('⏳ Prepare-se…', d.peek);
+    setTimeout(() => {
+      if(gen !== S.gen) return;
+      cards.forEach(c => c.classList.add('flipped'));
+      runPeekCountdown(gen, d.peek);
+    }, 350);
     setTimeout(() => {
       if(gen !== S.gen) return;
       cards.forEach(c => c.classList.remove('flipped'));
-      setTimeout(() => { if(gen === S.gen) S.locked = false; }, 450);
+      hidePeekBanner();
+      setTimeout(() => { if(gen === S.gen){ S.locked = false; S.previewing = false; say('Pode jogar'); } }, 450);
     }, 350 + d.peek);
   } else {
     S.locked = false;
   }
+}
+
+/* Prévia: aviso visível com contagem regressiva e barra */
+let peekTimer = null;
+function showPeekBanner(text, ms){
+  $('peek-text').textContent = text;
+  $('peek-sec').textContent = (ms / 1000).toFixed(1) + 's';
+  $('peek-fill').style.width = '100%';
+  $('peek-banner').classList.add('show');
+}
+function hidePeekBanner(){ clearInterval(peekTimer); peekTimer = null; $('peek-banner').classList.remove('show'); }
+function runPeekCountdown(gen, ms){
+  const end = Date.now() + ms;
+  $('peek-text').textContent = '👀 Memorize as cartas!';
+  clearInterval(peekTimer);
+  const upd = () => {
+    if(gen !== S.gen){ clearInterval(peekTimer); return; }
+    const left = Math.max(0, end - Date.now());
+    $('peek-sec').textContent = (left / 1000).toFixed(1) + 's';
+    $('peek-fill').style.width = (left / ms * 100) + '%';
+    if(left <= 0) clearInterval(peekTimer);
+  };
+  upd(); peekTimer = setInterval(upd, 100);
 }
 
 /* ================= Lógica ================= */
@@ -834,7 +882,7 @@ function handleWin(){
     $('win-title').textContent = p1 === p2 ? '🤝 Empate!' : `🏆 Jogador ${p1 > p2 ? 1 : 2} venceu!`;
     $('win-sub').textContent = `Placar: ${p1} x ${p2}`;
     $('win-stars').innerHTML = '';
-    addRecord({ mode:'2', diff:S.diff, theme:S.theme, p1, p2, seconds:S.seconds, moves:S.moves });
+    addRecord({ mode:'2', diff:S.diff, theme:S.theme, p1, p2, seconds:S.seconds, moves:S.moves, peek:S.peeked });
   } else {
     const timeBonus = mode === 't' ? remain * 3 : Math.max(0, d.pairs * 6 - S.seconds) * 2;
     const st = starRating();   // antes do bônus de tempo, para ele não inflar a classificação
@@ -843,14 +891,14 @@ function handleWin(){
     $('win-title').textContent = mode === 'd' ? '📅 Desafio concluído!' : '🎉 Parabéns!';
     $('win-sub').textContent = `Melhor combo: x${S.bestCombo} • Bônus de tempo: +${timeBonus}`;
     $('win-stars').innerHTML = [1,2,3].map(i => `<span class="${i <= st ? 'on' : ''}">★</span>`).join('');
-    const rec = addRecord({ mode, diff:S.diff, theme:S.theme, score:S.score, seconds:S.seconds, moves:S.moves, stars:st, day:mode === 'd' ? dateKey() : undefined });
+    const rec = addRecord({ mode, diff:S.diff, theme:S.theme, score:S.score, seconds:S.seconds, moves:S.moves, stars:st, peek:S.peeked, day:mode === 'd' ? dateKey() : undefined });
     $('new-record-badge').style.display = rec ? 'inline-block' : 'none';
     if(mode === 'd'){
       const n = bumpStreak();
       const sb = $('streak-badge'); sb.textContent = `🔥 Sequência: ${n} dia${n > 1 ? 's' : ''}`; sb.style.display = 'inline-block';
     }
     const starsTxt = '⭐'.repeat(st);
-    S.shareText = `Telas do Passado — ${MODE_NAMES[mode]}${mode === 'd' ? ' ' + dateKey() : ' (' + d.name + ')'}\n${starsTxt} ${S.score} pts • ${fmt(S.seconds)} • ${S.moves} jogadas • combo x${S.bestCombo}\n${location.href.split('#')[0]}`;
+    S.shareText = `Telas do Passado — ${MODE_NAMES[mode]}${mode === 'd' ? ' ' + dateKey() : ' (' + d.name + ')'}\n${starsTxt} ${S.score} pts • ${fmt(S.seconds)} • ${S.moves} jogadas • combo x${S.bestCombo}${S.peeked ? '' : ' • sem espiadinha 🧠'}\n${location.href.split('#')[0]}`;
     $('share-btn').style.display = '';
   }
   confetti();
@@ -913,13 +961,13 @@ function renderHistory(){
     if(x.mode === '2'){
       const w = x.p1 === x.p2 ? 'Empate' : `Jogador ${x.p1 > x.p2 ? 1 : 2} venceu`;
       return `<div class="history-item"><div><strong>${x.p1} x ${x.p2}</strong> <span style="opacity:.8">• ${w}</span>
-        <div class="meta">${x.date} • ${difficulty[x.diff].name} • ${th(x)}</div></div>
+        <div class="meta">${x.date} • ${difficulty[x.diff].name} • ${th(x)}${x.peek === false ? ' • sem espiadinha 🧠' : ''}</div></div>
         <div style="text-align:right;font-size:.8rem"><i class="fa-solid fa-clock"></i> ${fmt(x.seconds)}<br><i class="fa-solid fa-arrows-rotate"></i> ${x.moves}</div></div>`;
     }
     const extra = x.mode === 't' ? ` • ${difficulty[x.diff].name}` : '';
     return `<div class="history-item"><div style="display:flex;gap:.5rem;align-items:center"><span class="pos">${medal}</span>
       <div><strong>${x.score} pts</strong> <span style="color:var(--accent-yellow)">${'★'.repeat(x.stars || 0)}</span>
-      <div class="meta">${x.date}${extra} • ${th(x)}</div></div></div>
+      <div class="meta">${x.date}${extra} • ${th(x)}${x.peek === false ? ' • sem espiadinha 🧠' : ''}</div></div></div>
       <div style="text-align:right;font-size:.8rem"><i class="fa-solid fa-clock"></i> ${fmt(x.seconds)}<br><i class="fa-solid fa-arrows-rotate"></i> ${x.moves}</div></div>`;
   }).join('');
 }
