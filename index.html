@@ -25,13 +25,13 @@ body{
     radial-gradient(circle at 90% 80%,rgba(0,243,255,.15) 0%,transparent 40%);
   background-attachment:fixed;
 }
-/* scanlines retrô */
 body::after{
   content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
   background:repeating-linear-gradient(to bottom,rgba(255,255,255,.025) 0,rgba(255,255,255,.025) 1px,transparent 1px,transparent 3px);
 }
 button{font-family:inherit;color:inherit}
 :focus-visible{outline:3px solid var(--accent-yellow);outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 .screen{display:none;width:100%;max-width:900px;padding:1.2rem;flex-direction:column;align-items:center;margin:auto 0;position:relative;z-index:2}
 .screen.active{display:flex;animation:fadeIn .35s ease}
@@ -41,15 +41,17 @@ button{font-family:inherit;color:inherit}
 .welcome-card{
   background:rgba(26,22,43,.88);border:2px solid var(--accent-neon);
   box-shadow:0 0 20px rgba(0,243,255,.3),inset 0 0 15px rgba(0,243,255,.1);
-  border-radius:20px;padding:1.6rem;width:100%;max-width:560px;text-align:center;backdrop-filter:blur(10px);
+  border-radius:20px;padding:1.5rem;width:100%;max-width:580px;text-align:center;backdrop-filter:blur(10px);
 }
 .retro-tag{font-family:'Press Start 2P',monospace;font-size:.7rem;color:var(--accent-pink);letter-spacing:2px;display:block;margin-bottom:.6rem;text-shadow:0 0 8px rgba(255,0,127,.7);animation:flicker 4s infinite}
 @keyframes flicker{0%,92%,100%{opacity:1}93%{opacity:.5}95%{opacity:1}97%{opacity:.6}}
 .main-title{font-size:2.3rem;font-weight:700;text-transform:uppercase;color:#fff;text-shadow:0 0 10px var(--accent-neon);line-height:1.1}
-.subtitle{font-size:1rem;color:var(--muted);margin:.3rem 0 1.2rem}
-.config-group{margin-bottom:1rem;text-align:left}
-.config-label{font-size:1rem;font-weight:700;color:var(--accent-yellow);display:block;margin-bottom:.45rem}
+.subtitle{font-size:1rem;color:var(--muted);margin:.3rem 0 1.1rem}
+.config-group{margin-bottom:.95rem;text-align:left;transition:opacity .2s}
+.config-group.locked{opacity:.4;pointer-events:none}
+.config-label{font-size:1rem;font-weight:700;color:var(--accent-yellow);display:block;margin-bottom:.4rem}
 .options-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:.45rem}
+.options-grid.modes{grid-template-columns:repeat(2,1fr)}
 .btn-option{
   background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.2);padding:.55rem .4rem;border-radius:10px;
   cursor:pointer;font-weight:600;font-size:.92rem;transition:all .2s;text-align:center;line-height:1.15
@@ -58,9 +60,11 @@ button{font-family:inherit;color:inherit}
 .btn-option:hover{border-color:var(--accent-neon);background:rgba(0,243,255,.1)}
 .btn-option.active{background:var(--accent-neon);color:#000;border-color:var(--accent-neon);box-shadow:0 0 12px rgba(0,243,255,.5);font-weight:700}
 .toggles{display:flex;flex-wrap:wrap;gap:.45rem}
-.toggle{flex:1 1 120px}
+.toggle{flex:1 1 105px}
 .toggle.active{background:rgba(0,255,102,.18);border-color:var(--accent-green);color:#fff;box-shadow:0 0 10px rgba(0,255,102,.25)}
 .toggle .fa-solid{margin-right:.3rem}
+.daily-info{display:none;margin:-.3rem 0 .9rem;padding:.5rem .7rem;border-radius:10px;border:1px dashed var(--accent-yellow);background:rgba(255,230,0,.07);font-size:.9rem;text-align:left}
+.daily-info.show{display:block}
 
 .btn{padding:.8rem 1.3rem;border-radius:12px;border:none;font-size:1rem;font-weight:700;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;justify-content:center;gap:.5rem}
 .btn:active{transform:scale(.97)}
@@ -77,21 +81,24 @@ button{font-family:inherit;color:inherit}
 .header .center{text-align:center;flex:1;min-width:0}
 .header h2{font-size:1.1rem;color:var(--accent-neon)}
 .header .sub{font-size:.8rem;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.header .tools{display:flex;gap:.35rem}
-.btn-icon{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.05rem;transition:all .2s;position:relative}
+.header .tools{display:flex;gap:.3rem}
+.btn-icon{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;transition:all .2s;position:relative;flex:none}
 .btn-icon:hover{border-color:var(--accent-neon);color:var(--accent-neon)}
 .btn-icon:disabled{opacity:.35;cursor:not-allowed}
+.btn-icon.off{opacity:.55}
 .btn-icon .badge{position:absolute;top:-6px;right:-6px;background:var(--accent-pink);color:#fff;font-size:.68rem;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px}
 
-.stats-panel{display:flex;gap:.6rem;width:100%;margin-bottom:.9rem}
+.stats-panel{display:flex;gap:.5rem;width:100%;margin-bottom:.9rem}
 .stat-card{flex:1;background:rgba(26,22,43,.85);border:1px solid rgba(0,243,255,.3);border-radius:12px;padding:.45rem .3rem;text-align:center;min-width:0}
 .stat-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:.3rem}
 .stat-value{font-size:1.25rem;font-weight:700;color:var(--accent-neon);display:block}
 .stat-card.bump .stat-value{animation:bump .3s ease}
 @keyframes bump{50%{transform:scale(1.25);color:var(--accent-yellow)}}
 .combo-hot .stat-value{color:var(--accent-yellow);text-shadow:0 0 8px rgba(255,230,0,.7)}
+.stat-card.low{border-color:#ef4444;animation:lowPulse .5s ease infinite alternate}
+.stat-card.low .stat-value{color:#ff5a5a}
+@keyframes lowPulse{to{box-shadow:0 0 14px rgba(239,68,68,.8)}}
 
-/* placar 2 jogadores */
 .players{display:none;width:100%;gap:.6rem;margin-bottom:.9rem}
 .players.show{display:flex}
 .player{flex:1;border-radius:12px;padding:.45rem .6rem;border:2px solid rgba(255,255,255,.15);background:rgba(26,22,43,.85);display:flex;justify-content:space-between;align-items:center;transition:all .25s}
@@ -118,6 +125,7 @@ button{font-family:inherit;color:inherit}
 }
 .card:hover:not(.flipped):not(.matched) .card-back{border-color:var(--accent-neon);box-shadow:inset 0 0 10px rgba(0,0,0,.5),0 0 12px rgba(0,243,255,.35)}
 .card-front{background:var(--card-front);transform:rotateY(180deg);font-size:2.2rem;font-size:52cqw;border-color:var(--accent-neon);box-shadow:0 0 10px rgba(0,243,255,.2);line-height:1}
+.card-front svg{width:66%;height:66%;shape-rendering:crispEdges;filter:drop-shadow(0 0 5px rgba(0,243,255,.45))}
 .card.matched{cursor:default}
 .card.matched .card-front{border-color:var(--accent-yellow);box-shadow:0 0 15px rgba(255,230,0,.5);animation:pulse .5s ease}
 .card.matched.by-p1 .card-front{border-color:var(--accent-neon);box-shadow:0 0 15px rgba(0,243,255,.6)}
@@ -130,11 +138,12 @@ button{font-family:inherit;color:inherit}
 
 .floating{position:fixed;pointer-events:none;font-family:'Press Start 2P',monospace;font-size:.8rem;z-index:150;animation:floatUp 1s ease-out forwards;text-shadow:0 0 6px #000}
 @keyframes floatUp{from{opacity:1;transform:translate(-50%,0)}to{opacity:0;transform:translate(-50%,-55px)}}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--card-bg);border:1px solid var(--accent-neon);padding:.6rem 1rem;border-radius:10px;z-index:300;font-weight:700;box-shadow:0 0 16px rgba(0,243,255,.4);animation:fadeIn .25s ease}
 
 /* ===== MODAIS ===== */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(5px);z-index:100;align-items:center;justify-content:center;padding:1rem}
 .modal-overlay.active{display:flex;animation:fadeIn .25s ease}
-.modal{background:var(--card-bg);border:2px solid var(--accent-neon);border-radius:20px;padding:1.5rem;width:100%;max-width:460px;text-align:center;box-shadow:0 0 30px rgba(0,243,255,.4);max-height:92vh;overflow-y:auto}
+.modal{background:var(--card-bg);border:2px solid var(--accent-neon);border-radius:20px;padding:1.5rem;width:100%;max-width:470px;text-align:center;box-shadow:0 0 30px rgba(0,243,255,.4);max-height:92vh;overflow-y:auto}
 .modal h2{font-size:1.6rem;margin-bottom:.6rem;color:var(--accent-neon)}
 .modal-actions{display:flex;gap:.7rem;margin-top:1.1rem}.modal-actions .btn{flex:1}
 .stars{font-size:2.2rem;letter-spacing:.2rem;margin:.2rem 0;color:#475069}
@@ -143,7 +152,7 @@ button{font-family:inherit;color:inherit}
 @keyframes starPop{from{transform:scale(0) rotate(-90deg)}}
 .record-badge{background:var(--accent-yellow);color:#000;font-weight:700;font-size:.8rem;padding:.2rem .6rem;border-radius:4px;margin:.3rem 0;display:inline-block}
 .tabs{display:flex;gap:.3rem;margin:.6rem 0 .2rem;flex-wrap:wrap;justify-content:center}
-.tab{padding:.3rem .7rem;font-size:.8rem;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);cursor:pointer;font-weight:600}
+.tab{padding:.3rem .65rem;font-size:.8rem;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);cursor:pointer;font-weight:600}
 .tab.active{background:var(--accent-neon);color:#000;border-color:var(--accent-neon)}
 .history-list{max-height:250px;overflow-y:auto;margin:.8rem 0;display:flex;flex-direction:column;gap:.45rem;text-align:left}
 .history-item{background:rgba(255,255,255,.05);padding:.5rem .7rem;border-radius:8px;display:flex;justify-content:space-between;align-items:center;font-size:.85rem;border-left:3px solid var(--accent-neon);gap:.5rem}
@@ -158,7 +167,10 @@ button{font-family:inherit;color:inherit}
   .memory-grid{gap:.4rem}
   .options-grid{grid-template-columns:repeat(2,1fr)}
   .stat-value{font-size:1.05rem}
-  .stats-panel{gap:.35rem}
+  .stat-label{font-size:.62rem}
+  .stats-panel{gap:.3rem}
+  .btn-icon{width:36px;height:36px}
+  .header .tools{gap:.2rem}
 }
 @media (max-height:520px) and (orientation:landscape){
   .memory-grid{max-width:calc(var(--cols)*80px)}
@@ -170,6 +182,8 @@ button{font-family:inherit;color:inherit}
 </head>
 <body>
 
+<div class="sr-only" id="sr" aria-live="polite"></div>
+
 <!-- ===== MENU ===== -->
 <div class="screen active" id="welcome-screen">
   <div class="welcome-card">
@@ -178,24 +192,28 @@ button{font-family:inherit;color:inherit}
     <p class="subtitle">Viaje pelas memórias e teste sua mente!</p>
 
     <div class="config-group">
-      <span class="config-label"><i class="fa-solid fa-users"></i> Modo:</span>
-      <div class="options-grid">
-        <button class="btn-option mode-btn active" data-mode="1">👤 1 Jogador</button>
-        <button class="btn-option mode-btn" data-mode="2">👥 2 Jogadores</button>
+      <span class="config-label"><i class="fa-solid fa-gamepad"></i> Modo de jogo:</span>
+      <div class="options-grid modes">
+        <button class="btn-option mode-btn" data-mode="1">👤 Solo<small>pontos e combos</small></button>
+        <button class="btn-option mode-btn" data-mode="2">👥 2 Jogadores<small>quem acerta joga de novo</small></button>
+        <button class="btn-option mode-btn" data-mode="t">⏱ Contra o Relógio<small>acerto ganha +3s</small></button>
+        <button class="btn-option mode-btn" data-mode="d">📅 Desafio do Dia<small>mesmo tabuleiro pra todos</small></button>
       </div>
     </div>
 
-    <div class="config-group">
+    <div class="daily-info" id="daily-info"></div>
+
+    <div class="config-group" id="diff-group">
       <span class="config-label"><i class="fa-solid fa-layer-group"></i> Dificuldade:</span>
       <div class="options-grid" id="diff-options">
         <button class="btn-option diff-btn" data-diff="easy">Fácil (8)<small class="best"></small></button>
-        <button class="btn-option diff-btn active" data-diff="medium">Médio (16)<small class="best"></small></button>
+        <button class="btn-option diff-btn" data-diff="medium">Médio (16)<small class="best"></small></button>
         <button class="btn-option diff-btn" data-diff="hard">Difícil (24)<small class="best"></small></button>
         <button class="btn-option diff-btn" data-diff="hardest">Dificílimo (32)<small class="best"></small></button>
       </div>
     </div>
 
-    <div class="config-group">
+    <div class="config-group" id="theme-group">
       <span class="config-label"><i class="fa-solid fa-palette"></i> Tema das cartas:</span>
       <div class="options-grid" id="theme-options"></div>
     </div>
@@ -203,8 +221,9 @@ button{font-family:inherit;color:inherit}
     <div class="config-group">
       <span class="config-label"><i class="fa-solid fa-sliders"></i> Opções:</span>
       <div class="toggles">
-        <button class="btn-option toggle active" id="toggle-sound"><i class="fa-solid fa-volume-high"></i>Som</button>
-        <button class="btn-option toggle active" id="toggle-peek"><i class="fa-solid fa-eye"></i>Espiadinha</button>
+        <button class="btn-option toggle" id="toggle-sound"></button>
+        <button class="btn-option toggle" id="toggle-music"></button>
+        <button class="btn-option toggle" id="toggle-peek"><i class="fa-solid fa-eye"></i>Espiadinha</button>
       </div>
     </div>
 
@@ -227,9 +246,11 @@ button{font-family:inherit;color:inherit}
       <div class="sub" id="current-diff-theme"></div>
     </div>
     <div class="tools">
-      <button class="btn-icon" id="hint-btn" title="Dica (-50 pontos)" aria-label="Dica"><i class="fa-solid fa-lightbulb"></i><span class="badge" id="hint-count">3</span></button>
-      <button class="btn-icon" id="pause-btn" title="Pausar" aria-label="Pausar"><i class="fa-solid fa-pause"></i></button>
-      <button class="btn-icon" id="restart-game-btn" title="Reiniciar" aria-label="Reiniciar"><i class="fa-solid fa-rotate-right"></i></button>
+      <button class="btn-icon" id="sound-quick" title="Efeitos sonoros (S)" aria-label="Ligar ou desligar efeitos sonoros"></button>
+      <button class="btn-icon" id="music-quick" title="Música (M)" aria-label="Ligar ou desligar a música"></button>
+      <button class="btn-icon" id="hint-btn" title="Dica (H) • -50 pontos" aria-label="Dica"><i class="fa-solid fa-lightbulb"></i><span class="badge" id="hint-count">3</span></button>
+      <button class="btn-icon" id="pause-btn" title="Pausar (P)" aria-label="Pausar"><i class="fa-solid fa-pause"></i></button>
+      <button class="btn-icon" id="restart-game-btn" title="Reiniciar (R)" aria-label="Reiniciar"><i class="fa-solid fa-rotate-right"></i></button>
     </div>
   </header>
 
@@ -239,7 +260,7 @@ button{font-family:inherit;color:inherit}
   </div>
 
   <div class="stats-panel" id="stats-panel">
-    <div class="stat-card"><span class="stat-label"><i class="fa-solid fa-stopwatch"></i> Tempo</span><span class="stat-value" id="timer-display">00:00</span></div>
+    <div class="stat-card" id="timer-card"><span class="stat-label"><i class="fa-solid fa-stopwatch"></i> <span id="timer-label">Tempo</span></span><span class="stat-value" id="timer-display">00:00</span></div>
     <div class="stat-card" id="moves-card"><span class="stat-label"><i class="fa-solid fa-arrows-rotate"></i> Jogadas</span><span class="stat-value" id="moves-display">0</span></div>
     <div class="stat-card" id="pairs-card"><span class="stat-label"><i class="fa-solid fa-bullseye"></i> Pares</span><span class="stat-value" id="pairs-display">0 / 8</span></div>
     <div class="stat-card" id="score-card"><span class="stat-label"><i class="fa-solid fa-star"></i> Pontos</span><span class="stat-value" id="score-display">0</span></div>
@@ -266,13 +287,13 @@ button{font-family:inherit;color:inherit}
   <div class="modal" role="dialog" aria-modal="true" aria-label="Como jogar">
     <h2><i class="fa-solid fa-book-open"></i> Como Jogar</h2>
     <ul class="how">
-      <li>Escolha o <strong>modo</strong>, a <strong>dificuldade</strong> e o <strong>tema</strong>.</li>
-      <li>Vire duas cartas por vez e encontre os pares iguais.</li>
-      <li>O tempo só começa a contar na <strong>primeira carta virada</strong>.</li>
-      <li><strong>Combo:</strong> acertos seguidos valem cada vez mais pontos. Errar custa 10 pontos.</li>
-      <li><strong>Dica 💡:</strong> 3 por partida, custa 50 pontos (só no modo solo).</li>
-      <li><strong>2 Jogadores:</strong> quem acerta joga de novo; quem errar passa a vez. Vence quem tiver mais pares.</li>
-      <li>Atalhos: <strong>P</strong> pausa, <strong>R</strong> reinicia, <strong>H</strong> dica, <strong>M</strong> muda o som.</li>
+      <li>Vire duas cartas por vez e encontre os pares. O tempo só começa na <strong>primeira carta virada</strong>.</li>
+      <li><strong>Solo:</strong> acertos seguidos formam um <strong>combo</strong> e valem mais pontos. Errar custa 10 pontos.</li>
+      <li><strong>2 Jogadores:</strong> quem acerta joga de novo; quem erra passa a vez. Vence quem tiver mais pares.</li>
+      <li><strong>Contra o Relógio:</strong> o tempo é limitado, mas cada par encontrado devolve 3 segundos.</li>
+      <li><strong>Desafio do Dia:</strong> todo mundo recebe o mesmo tabuleiro no mesmo dia. Jogue todo dia para manter a sequência 🔥.</li>
+      <li><strong>Dica 💡:</strong> 3 por partida, custa 50 pontos (não existe no modo 2 jogadores).</li>
+      <li>Atalhos: <strong>P</strong> pausa, <strong>R</strong> reinicia, <strong>H</strong> dica, <strong>S</strong> efeitos, <strong>M</strong> música.</li>
     </ul>
     <div class="modal-actions"><button class="btn btn-primary closeModal" data-target="instructions-modal">Entendi!</button></div>
   </div>
@@ -295,12 +316,16 @@ button{font-family:inherit;color:inherit}
     <p id="win-sub" style="margin-top:.2rem">Você completou o jogo!</p>
     <div class="stars" id="win-stars" aria-label="Avaliação"></div>
     <div id="new-record-badge" style="display:none" class="record-badge">🌟 NOVO RECORDE!</div>
+    <div id="streak-badge" style="display:none;background:#ff7a00;color:#fff" class="record-badge">🔥</div>
     <div class="stats-panel" style="margin:1rem 0 .2rem">
       <div class="stat-card"><span class="stat-label">Tempo</span><span class="stat-value" id="final-time">00:00</span></div>
       <div class="stat-card"><span class="stat-label">Jogadas</span><span class="stat-value" id="final-moves">0</span></div>
       <div class="stat-card" id="final-score-card"><span class="stat-label">Pontos</span><span class="stat-value" id="final-score">0</span></div>
     </div>
     <div class="modal-actions">
+      <button class="btn btn-secondary" id="share-btn"><i class="fa-solid fa-share-nodes"></i> Compartilhar</button>
+    </div>
+    <div class="modal-actions" style="margin-top:.6rem">
       <button class="btn btn-primary" id="play-again-btn" style="margin-top:0"><i class="fa-solid fa-rotate-right"></i> Jogar de Novo</button>
       <button class="btn btn-secondary" id="win-menu-btn">Menu</button>
     </div>
@@ -312,28 +337,93 @@ button{font-family:inherit;color:inherit}
 <script>
 'use strict';
 
-/* ========== Storage seguro ========== */
+/* ================= Storage seguro ================= */
 const Store = {
   get(k, def){ try{ const v = localStorage.getItem(k); return v === null ? def : JSON.parse(v); }catch(e){ return def; } },
   set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} },
   del(k){ try{ localStorage.removeItem(k); }catch(e){} }
 };
-const KEY_HISTORY = 'tdp_memoria_v2_historico';
+const KEY_HISTORY = 'tdp_memoria_v2_historico';   // mantido: preserva os recordes da versão anterior
 const KEY_SETTINGS = 'tdp_memoria_v2_config';
+const KEY_STREAK = 'tdp_memoria_v3_sequencia';
 
-/* ========== Áudio (Web Audio) ========== */
+/* ================= Utilidades ================= */
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2, '0');
+const fmt = s => pad(Math.floor(s/60)) + ':' + pad(s%60);
+function dateKey(d = new Date()){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+function hashStr(s){ let h = 2166136261; for(const c of s){ h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
+function mulberry32(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function shuffle(arr, rng = Math.random){ const a = arr.slice(); for(let i = a.length-1; i > 0; i--){ const j = Math.floor(rng()*(i+1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function bump(id){ const el = $(id); el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+function say(t){ $('sr').textContent = t; }
+function toast(msg){ const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2200); }
+
+/* ================= Arte pixel (sprites 8x8 desenhados em código) ================= */
+const PAL = {k:'#14101f', w:'#ffffff', r:'#ff3b5c', o:'#ff9f1c', y:'#ffe600', g:'#2ee66b', b:'#3b82f6', c:'#00f3ff', p:'#ff4fb6', v:'#8b5cf6', n:'#a0623a', a:'#9aa3b8'};
+const SPRITES = {
+  tv:       ['.w....w.','..w..w..','aaaaaaaa','acccccaa','acwcccap','acccccap','aaaaaaaa','.a....a.'],
+  floppy:   ['bbbbbbb.','bakkkabb','bakkkabb','bbbbbbbb','bwwwwwwb','bwkkkkwb','bwwwwwwb','bbbbbbbb'],
+  cassette: ['........','aaaaaaaa','awwwwwwa','awkwwkwa','awwwwwwa','aaaaaaaa','a.aaaa.a','aaaaaaaa'],
+  joystick: ['...rr...','...rr...','...aa...','...aa...','...aa...','.vvvvvv.','vvvvvvvv','vvrvvyvv'],
+  alien:    ['..g..g..','...gg...','..gggg..','.gwggwg.','gggggggg','g.gggg.g','g.g..g.g','...gg...'],
+  heart:    ['........','.rr..rr.','rrrrrrrr','rwrrrrrr','rrrrrrrr','.rrrrrr.','..rrrr..','...rr...'],
+  star:     ['...yy...','...yy...','yyyyyyyy','.yyyyyy.','..yyyy..','.yyyyyy.','.yy..yy.','yy....yy'],
+  coin:     ['..yyyy..','.yywwyy.','yywyyoyy','ywyyyyoy','ywyyyyoy','yyyyyooy','.yyoooy.','..yyyy..'],
+  cherry:   ['.....gg.','...ggg..','..g..g..','.g....g.','rr...rr.','rrr.rrr.','rrr.rrr.','.r...r..'],
+  key:      ['.yyy....','yy.yy...','y...y...','yy.yy...','.yyy....','..y.....','..yyy...','..y.yy..'],
+  potion:   ['..aaaa..','...aa...','...aa...','..gggg..','.gggwgg.','.ggggwg.','.gggggg.','..gggg..'],
+  gem:      ['........','..cccc..','.cwccbc.','cwcccbbc','.cccbbc.','..cbbc..','...bc...','........'],
+  crown:    ['........','y..yy..y','yy.yy.yy','yyyyyyyy','yyyyyyyy','yrywwyry','yyyyyyyy','yyyyyyyy'],
+  rocket:   ['...rr...','..rrrr..','..rwwr..','..rrrr..','.arrrra.','.aarraa.','..rrrr..','...oo...'],
+  mushroom: ['..rrrr..','.rwrrwr.','rrrrrrrr','rwrrrrwr','..wwww..','..wkkw..','..wwww..','...ww...'],
+  moon:     ['..yyyy..','.yyy....','yyy.....','yyy.....','yyy.....','yyyy....','.yyyyyy.','..yyyy..']
+};
+const SPRITE_NAMES = {tv:'TV', floppy:'Disquete', cassette:'Fita K7', joystick:'Joystick', alien:'Alienígena', heart:'Coração', star:'Estrela', coin:'Moeda', cherry:'Cereja', key:'Chave', potion:'Poção', gem:'Gema', crown:'Coroa', rocket:'Foguete', mushroom:'Cogumelo', moon:'Lua'};
+const spriteCache = {};
+function spriteSVG(n){
+  if(spriteCache[n]) return spriteCache[n];
+  let rects = '';
+  SPRITES[n].forEach((row, y) => { [...row].forEach((ch, x) => { if(ch !== '.') rects += `<rect x="${x}" y="${y}" width="1" height="1" fill="${PAL[ch]}"/>`; }); });
+  return spriteCache[n] = `<svg viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${rects}</svg>`;
+}
+const symbolHTML  = s => s.startsWith('px:') ? spriteSVG(s.slice(3)) : s;
+const symbolLabel = s => s.startsWith('px:') ? SPRITE_NAMES[s.slice(3)] : s;
+
+/* ================= Dados ================= */
+const themes = {
+  pixel:  { name:'Pixel Art', icon:'🕹️', set: Object.keys(SPRITES).map(n => 'px:' + n) },
+  retro:  { name:'Retrô',    icon:'📺', set:['📺','💾','📼','🕹️','📻','☎️','👾','📸','📟','🎮','💡','📽️','⏰','🔋','🎙️','⌛','💿','🖨️','🔦','🧲'] },
+  movies: { name:'Filmes',   icon:'🎬', set:['🎬','🍿','📹','🎞️','🎟️','🎥','🏆','🎭','🌌','🤖','🛸','🦖','🧙‍♂️','🤠','👑','🦸','🧛','👻','🦈','🚀'] },
+  animals:{ name:'Animais',  icon:'🐶', set:['🐶','🐱','🦊','🦁','🐸','🐵','🦄','🐼','🐯','🐰','🐙','🐨','🐬','🦉','🦋','🐝','🐢','🦜','🐧','🐘'] },
+  food:   { name:'Comidas',  icon:'🍕', set:['🍕','🍔','🍟','🍩','🍦','🍓','🥑','🌮','🍣','🍎','🍉','🍰','🧇','🥞','🥐','🍇','🍒','🥨','🌽','🍪'] },
+  space:  { name:'Galáxia',  icon:'🚀', set:['🚀','🛸','🪐','🌟','👨‍🚀','🌙','☄️','👾','☀️','🌍','🛰️','🌌','🌠','👽','🔭','🌑','🌕','⭐','🌎','💫'] },
+  sports: { name:'Esportes', icon:'⚽', set:['⚽','🏀','🏈','⚾','🎾','🥊','🛹','🚴','🏓','🎳','🎯','🥇','🏄','🥋','🎿','🏆','🏐','🏉','⛳','🏊'] },
+  nature: { name:'Natureza', icon:'🌴', set:['🌵','🌻','🌴','🍄','🌹','🌈','⛰️','🌊','🍁','🌸','🌲','⛅','❄️','🔥','🌷','🌺','🍀','🌾','🌋','🏝️'] }
+};
+const difficulty = {
+  easy:    { pairs:4,  cards:8,  name:'Fácil',      cls:'easy',    peek:1500, limit:45  },
+  medium:  { pairs:8,  cards:16, name:'Médio',      cls:'medium',  peek:2200, limit:90  },
+  hard:    { pairs:12, cards:24, name:'Difícil',    cls:'hard',    peek:3200, limit:150 },
+  hardest: { pairs:16, cards:32, name:'Dificílimo', cls:'hardest', peek:4200, limit:210 }
+};
+const MODE_NAMES = { '1':'Solo', '2':'2 jogadores', 't':'Contra o relógio', 'd':'Desafio do dia' };
+
+/* ================= Áudio ================= */
 const AudioFX = {
   ctx:null, enabled:true,
   init(){
-    if(!this.ctx){ const AC = window.AudioContext || window.webkitAudioContext; if(AC) this.ctx = new AC(); }
-    if(this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+    try{
+      if(!this.ctx){ const AC = window.AudioContext || window.webkitAudioContext; if(AC) this.ctx = new AC(); }
+      if(this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+    }catch(e){}
     return this.ctx;
   },
-  tone(freq, dur, type='sine', vol=.12, start=0, slideTo=null){
-    if(!this.enabled) return;
+  tone(freq, dur, type = 'sine', vol = .12, start = 0, slideTo = null, force = false){
+    if(!this.enabled && !force) return;
     try{
       const c = this.init(); if(!c) return;
-      const t = c.currentTime + start;
+      const t = c.currentTime + Math.max(0, start);
       const o = c.createOscillator(), g = c.createGain();
       o.type = type; o.frequency.setValueAtTime(freq, t);
       if(slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
@@ -345,143 +435,206 @@ const AudioFX = {
   flip(){ this.tone(300, .08, 'sine', .1, 0, 600); },
   match(){ this.tone(523.25, .12, 'triangle', .15); this.tone(659.25, .18, 'triangle', .15, .09); },
   miss(){ this.tone(220, .18, 'sawtooth', .06, 0, 140); },
-  combo(n){ const base = 659.25 * Math.pow(1.06, Math.min(n,8)); this.tone(base, .1, 'square', .05, .2); },
+  combo(n){ this.tone(659.25 * Math.pow(1.06, Math.min(n, 8)), .1, 'square', .05, .2); },
   hint(){ this.tone(880, .1, 'sine', .08); this.tone(1320, .12, 'sine', .08, .08); },
-  win(){ [440,554.37,659.25,880,1108.7].forEach((f,i)=>this.tone(f,.32,'sine',.15,i*.11)); },
+  win(){ [440,554.37,659.25,880,1108.7].forEach((f,i) => this.tone(f, .32, 'sine', .15, i*.11)); },
+  lose(){ [392,329.63,261.63,196].forEach((f,i) => this.tone(f, .3, 'triangle', .13, i*.16)); },
   buzz(ms){ try{ if(navigator.vibrate) navigator.vibrate(ms); }catch(e){} }
 };
 
-/* ========== Dados ========== */
-const themes = {
-  retro:  { name:'Retrô',    icon:'📺', set:['📺','💾','📼','🕹️','📻','☎️','👾','📸','📟','🎮','💡','📽️','⏰','🔋','🎙️','⌛','💿','🖨️','🔦','🧲'] },
-  movies: { name:'Filmes',   icon:'🎬', set:['🎬','🍿','📹','🎞️','🎟️','🎥','🏆','🎭','🌌','🤖','🛸','🦖','🧙‍♂️','🤠','👑','🦸','🧛','👻','🦈','🚀'] },
-  animals:{ name:'Animais',  icon:'🐶', set:['🐶','🐱','🦊','🦁','🐸','🐵','🦄','🐼','🐯','🐰','🐙','🐨','🐬','🦉','🦋','🐝','🐢','🦜','🐧','🐘'] },
-  food:   { name:'Comidas',  icon:'🍕', set:['🍕','🍔','🍟','🍩','🍦','🍓','🥑','🌮','🍣','🍎','🍉','🍰','🧇','🥞','🥐','🍇','🍒','🥨','🌽','🍪'] },
-  space:  { name:'Galáxia',  icon:'🚀', set:['🚀','🛸','🪐','🌟','👨‍🚀','🌙','☄️','👾','☀️','🌍','🛰️','🌌','🌠','👽','🔭','🌑','🌕','⭐','🌎','💫'] },
-  sports: { name:'Esportes', icon:'⚽', set:['⚽','🏀','🏈','⚾','🎾','🥊','🛹','🚴','🏓','🎳','🎯','🥇','🏄','🥋','🎿','🏆','🏐','🏉','⛳','🏊'] },
-  nature: { name:'Natureza', icon:'🌴', set:['🌵','🌻','🌴','🍄','🌹','🌈','⛰️','🌊','🍁','🌸','🌲','⛅','❄️','🔥','🌷','🌺','🍀','🌾','🌋','🏝️'] }
-};
-const difficulty = {
-  easy:    { pairs:4,  cards:8,  name:'Fácil',      cls:'easy',    peek:1500 },
-  medium:  { pairs:8,  cards:16, name:'Médio',      cls:'medium',  peek:2200 },
-  hard:    { pairs:12, cards:24, name:'Difícil',    cls:'hard',    peek:3200 },
-  hardest: { pairs:16, cards:32, name:'Dificílimo', cls:'hardest', peek:4200 }
+/* Trilha chiptune procedural (loop em Lá menor) */
+const Music = {
+  on:true, playing:false, step:0, nextT:0, timer:null,
+  chords:[ {b:45, a:[57,60,64,60]}, {b:41, a:[53,57,60,57]}, {b:48, a:[60,64,67,64]}, {b:43, a:[55,59,62,59]} ],
+  mf(m){ return 440 * Math.pow(2, (m - 69) / 12); },
+  start(){
+    if(!this.on || this.playing) return;
+    const c = AudioFX.init(); if(!c) return;
+    this.playing = true; this.nextT = c.currentTime + .08;
+    this.timer = setInterval(() => this.sched(), 100);
+  },
+  stop(){ if(this.timer) clearInterval(this.timer); this.timer = null; this.playing = false; },
+  sched(){
+    const c = AudioFX.ctx; if(!c) return;
+    const stepDur = 60 / 118 / 2;
+    while(this.nextT < c.currentTime + .35){
+      const chord = this.chords[Math.floor(this.step / 16) % 4], i = this.step % 16, rel = this.nextT - c.currentTime;
+      AudioFX.tone(this.mf(chord.a[i % 4]), stepDur * .9, 'square', .018, rel, null, true);
+      if(i % 4 === 0) AudioFX.tone(this.mf(chord.b), stepDur * 3.4, 'triangle', .06, rel, null, true);
+      if(i === 6 || i === 14) AudioFX.tone(this.mf(chord.a[2] + 12), stepDur * 1.6, 'square', .012, rel, null, true);
+      this.nextT += stepDur; this.step = (this.step + 1) % 64;
+    }
+  }
 };
 
-/* ========== Estado ========== */
-const cfg = Object.assign({ mode:'1', diff:'medium', theme:'retro', sound:true, peek:true }, Store.get(KEY_SETTINGS, {}));
+/* ================= Configuração e estado ================= */
+const cfg = Object.assign({ mode:'1', diff:'medium', theme:'pixel', sound:true, music:true, peek:true }, Store.get(KEY_SETTINGS, {}));
+if(!themes[cfg.theme]) cfg.theme = 'pixel';
+if(!difficulty[cfg.diff]) cfg.diff = 'medium';
+if(!MODE_NAMES[cfg.mode]) cfg.mode = '1';
+function saveCfg(){ Store.set(KEY_SETTINGS, { mode:cfg.mode, diff:cfg.diff, theme:cfg.theme, sound:cfg.sound, music:cfg.music, peek:cfg.peek }); }
+
 const S = {
+  mode:'1', diff:'medium', theme:'pixel',
   flipped:[], matched:0, moves:0, seconds:0, elapsedMs:0, startedAt:0, timer:null,
   running:false, paused:false, locked:false, over:false, combo:0, bestCombo:0, score:0,
-  hints:3, player:1, scores:[0,0,0], gen:0
+  hints:3, player:1, scores:[0,0,0], gen:0, limit:0, bonus:0, shareText:''
 };
 
-/* ========== DOM ========== */
-const $ = id => document.getElementById(id);
+function dailyTheme(){
+  const d = new Date(), keys = Object.keys(themes);
+  return keys[Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000) % keys.length];
+}
+function effective(){ return cfg.mode === 'd' ? { diff:'medium', theme:dailyTheme() } : { diff:cfg.diff, theme:cfg.theme }; }
+
 const welcome = $('welcome-screen'), gameScreen = $('game-screen'), grid = $('memory-grid');
 
-function fmt(s){ return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0'); }
-function shuffle(a){ a = a.slice(); for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; }
-function bump(id){ const el = $(id); el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
-function saveCfg(){ Store.set(KEY_SETTINGS, { mode:cfg.mode, diff:cfg.diff, theme:cfg.theme, sound:cfg.sound, peek:cfg.peek }); }
-
-/* ========== Menu ========== */
+/* ================= Menu ================= */
 function buildThemeButtons(){
   const box = $('theme-options');
-  box.innerHTML = Object.entries(themes).map(([k,t]) =>
-    `<button class="btn-option theme-btn" data-theme="${k}">${t.icon} ${t.name}</button>`).join('');
+  box.innerHTML = Object.entries(themes).map(([k,t]) => `<button class="btn-option theme-btn" data-theme="${k}">${t.icon} ${t.name}</button>`).join('');
   box.querySelectorAll('.theme-btn').forEach(b => b.addEventListener('click', () => { cfg.theme = b.dataset.theme; syncMenu(); saveCfg(); }));
+}
+function iconToggle(btn, on, iconOn, iconOff, label){
+  btn.classList.toggle('active', on);
+  btn.innerHTML = `<i class="fa-solid ${on ? iconOn : iconOff}"></i>${label}`;
 }
 function syncMenu(){
   document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === cfg.mode));
-  document.querySelectorAll('.diff-btn').forEach(b => b.classList.toggle('active', b.dataset.diff === cfg.diff));
-  document.querySelectorAll('.theme-btn').forEach(b => b.classList.toggle('active', b.dataset.theme === cfg.theme));
-  $('toggle-sound').classList.toggle('active', cfg.sound);
+  const e = effective();
+  document.querySelectorAll('.diff-btn').forEach(b => b.classList.toggle('active', b.dataset.diff === e.diff));
+  document.querySelectorAll('.theme-btn').forEach(b => b.classList.toggle('active', b.dataset.theme === e.theme));
+  $('diff-group').classList.toggle('locked', cfg.mode === 'd');
+  $('theme-group').classList.toggle('locked', cfg.mode === 'd');
+  iconToggle($('toggle-sound'), cfg.sound, 'fa-volume-high', 'fa-volume-xmark', 'Efeitos');
+  iconToggle($('toggle-music'), cfg.music, 'fa-music', 'fa-music', 'Música');
   $('toggle-peek').classList.toggle('active', cfg.peek);
-  $('toggle-sound').innerHTML = `<i class="fa-solid ${cfg.sound ? 'fa-volume-high' : 'fa-volume-xmark'}"></i>Som`;
-  $('hint-btn').style.display = cfg.mode === '1' ? '' : 'none';
-  AudioFX.enabled = cfg.sound;
-  const sb = $('sound-quick'); if(sb) sb.innerHTML = `<i class="fa-solid ${cfg.sound ? 'fa-volume-high' : 'fa-volume-xmark'}"></i>`;
+  AudioFX.enabled = cfg.sound; Music.on = cfg.music;
+  $('sound-quick').innerHTML = `<i class="fa-solid ${cfg.sound ? 'fa-volume-high' : 'fa-volume-xmark'}"></i>`;
+  $('music-quick').innerHTML = `<i class="fa-solid fa-music"></i>`;
+  $('sound-quick').classList.toggle('off', !cfg.sound);
+  $('music-quick').classList.toggle('off', !cfg.music);
   updateBests();
 }
+function getHistory(){ const h = Store.get(KEY_HISTORY, []); return Array.isArray(h) ? h : []; }
 function updateBests(){
-  const h = Store.get(KEY_HISTORY, []);
+  const h = getHistory();
+  const bm = cfg.mode === 't' ? 't' : '1';
   document.querySelectorAll('.diff-btn').forEach(b => {
-    const best = h.filter(x => x.mode === '1' && x.diff === b.dataset.diff).reduce((m,x) => Math.max(m, x.score), -1);
+    const best = h.filter(x => x.mode === bm && x.diff === b.dataset.diff).reduce((m,x) => Math.max(m, x.score), -1);
     b.querySelector('.best').textContent = best >= 0 ? `🏆 ${best} pts` : '—';
   });
+  const di = $('daily-info');
+  di.classList.toggle('show', cfg.mode === 'd');
+  if(cfg.mode === 'd'){
+    const today = dateKey(), best = h.filter(x => x.mode === 'd' && x.day === today).reduce((m,x) => Math.max(m, x.score), -1);
+    const st = Store.get(KEY_STREAK, { last:'', n:0 });
+    const y = new Date(); y.setDate(y.getDate() - 1);
+    const alive = st.last === today || st.last === dateKey(y);
+    di.innerHTML = `📅 <strong>Hoje:</strong> Médio • tema ${themes[dailyTheme()].name}<br>` +
+      (best >= 0 ? `✅ Seu melhor de hoje: <strong>${best} pts</strong>` : '🎯 Você ainda não jogou hoje') +
+      (alive && st.n > 0 ? ` &nbsp;•&nbsp; 🔥 Sequência: <strong>${st.n}</strong> dia${st.n > 1 ? 's' : ''}` : '');
+  }
 }
 document.querySelectorAll('.mode-btn').forEach(b => b.addEventListener('click', () => { cfg.mode = b.dataset.mode; syncMenu(); saveCfg(); }));
 document.querySelectorAll('.diff-btn').forEach(b => b.addEventListener('click', () => { cfg.diff = b.dataset.diff; syncMenu(); saveCfg(); }));
-$('toggle-sound').addEventListener('click', () => { cfg.sound = !cfg.sound; syncMenu(); saveCfg(); AudioFX.flip(); });
+function toggleSound(){ cfg.sound = !cfg.sound; syncMenu(); saveCfg(); AudioFX.flip(); }
+function toggleMusic(){
+  cfg.music = !cfg.music; syncMenu(); saveCfg();
+  if(!cfg.music) Music.stop();
+  else if(gameScreen.classList.contains('active') && !S.paused && !S.over) Music.start();
+}
+$('toggle-sound').addEventListener('click', toggleSound);
+$('sound-quick').addEventListener('click', toggleSound);
+$('toggle-music').addEventListener('click', toggleMusic);
+$('music-quick').addEventListener('click', toggleMusic);
 $('toggle-peek').addEventListener('click', () => { cfg.peek = !cfg.peek; syncMenu(); saveCfg(); });
 
-/* ========== Navegação ========== */
+/* ================= Navegação / modais ================= */
 function showScreen(which){
   welcome.classList.toggle('active', which === 'welcome');
   gameScreen.classList.toggle('active', which === 'game');
   if(which === 'welcome') updateBests();
 }
+function openModal(id){ $(id).classList.add('active'); }
+function closeModal(id){ $(id).classList.remove('active'); }
 $('start-game-btn').addEventListener('click', () => { AudioFX.init(); showScreen('game'); initGame(); });
 $('back-to-menu-btn').addEventListener('click', goMenu);
 $('pause-menu-btn').addEventListener('click', () => { closeModal('pause-modal'); goMenu(); });
 $('win-menu-btn').addEventListener('click', () => { closeModal('win-modal'); goMenu(); });
 $('restart-game-btn').addEventListener('click', initGame);
 $('play-again-btn').addEventListener('click', () => { closeModal('win-modal'); initGame(); });
-function goMenu(){ stopTimer(); S.gen++; S.running = false; showScreen('welcome'); }
-
-/* ========== Modais ========== */
-function openModal(id){ $(id).classList.add('active'); }
-function closeModal(id){ $(id).classList.remove('active'); }
+function goMenu(){
+  stopTimer(); Music.stop(); S.gen++; S.running = false; S.paused = false; S.over = true;
+  grid.style.visibility = ''; closeModal('pause-modal'); showScreen('welcome');
+}
 document.querySelectorAll('.closeModal').forEach(b => b.addEventListener('click', () => closeModal(b.dataset.target)));
 document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => {
   if(e.target === o && o.id !== 'win-modal' && o.id !== 'pause-modal') o.classList.remove('active');
 }));
 $('instructions-btn').addEventListener('click', () => openModal('instructions-modal'));
-$('welcome-history-btn').addEventListener('click', () => { histFilter = cfg.diff; renderHistory(); openModal('history-modal'); });
+$('welcome-history-btn').addEventListener('click', () => { histTab = cfg.mode === '2' ? '2' : cfg.mode === 't' ? 't' : cfg.mode === 'd' ? 'd' : cfg.diff; renderHistory(); openModal('history-modal'); });
 $('clear-history-btn').addEventListener('click', () => {
   if(confirm('Apagar todos os recordes?')){ Store.del(KEY_HISTORY); renderHistory(); updateBests(); }
 });
 
-/* ========== Cronômetro (preciso, só inicia na 1ª carta) ========== */
+/* ================= Cronômetro ================= */
+function remaining(){ return Math.max(0, S.limit + S.bonus - S.seconds); }
+function renderTime(){
+  if(S.mode === 't'){
+    const r = remaining();
+    $('timer-display').textContent = fmt(r);
+    const low = r <= 10 && r > 0 && S.running && !S.over;
+    $('timer-card').classList.toggle('low', low);
+    if(low) AudioFX.tone(880, .05, 'square', .05);
+    if(r <= 0 && S.running && !S.over) handleLose();
+  } else {
+    $('timer-display').textContent = fmt(S.seconds);
+  }
+}
+function tick(){
+  S.elapsedMs = Date.now() - S.startedAt;
+  const s = Math.floor(S.elapsedMs / 1000);
+  if(s !== S.seconds){ S.seconds = s; renderTime(); }
+}
 function startTimer(){
   if(S.timer || S.over) return;
   S.startedAt = Date.now() - S.elapsedMs;
   S.timer = setInterval(tick, 250);
 }
-function tick(){
-  S.elapsedMs = Date.now() - S.startedAt;
-  const s = Math.floor(S.elapsedMs/1000);
-  if(s !== S.seconds){ S.seconds = s; $('timer-display').textContent = fmt(s); }
-}
 function stopTimer(){ if(S.timer){ tick(); clearInterval(S.timer); S.timer = null; } }
 
-/* ========== Pausa ========== */
+/* ================= Pausa ================= */
 function pauseGame(){
   if(!gameScreen.classList.contains('active') || S.over || S.paused) return;
-  S.paused = true; stopTimer(); grid.style.visibility = 'hidden'; openModal('pause-modal');
+  S.paused = true; stopTimer(); Music.stop(); grid.style.visibility = 'hidden'; openModal('pause-modal');
 }
 function resumeGame(){
   if(!S.paused) return;
   S.paused = false; grid.style.visibility = ''; closeModal('pause-modal');
   if(S.running) startTimer();
+  Music.start();
 }
 $('pause-btn').addEventListener('click', pauseGame);
 $('resume-btn').addEventListener('click', resumeGame);
 document.addEventListener('visibilitychange', () => { if(document.hidden && S.running && !S.over) pauseGame(); });
 
-/* ========== Início do jogo ========== */
+/* ================= Início da partida ================= */
 function initGame(){
   S.gen++;
   const gen = S.gen;
   stopTimer();
   closeModal('pause-modal'); closeModal('win-modal');
   grid.style.visibility = '';
-  Object.assign(S, { flipped:[], matched:0, moves:0, seconds:0, elapsedMs:0, running:false, paused:false, locked:true, over:false,
-    combo:0, bestCombo:0, score:0, hints:3, player:1, scores:[0,0,0] });
+  const e = effective(), d = difficulty[e.diff], t = themes[e.theme];
+  Object.assign(S, { mode:cfg.mode, diff:e.diff, theme:e.theme, flipped:[], matched:0, moves:0, seconds:0, elapsedMs:0,
+    running:false, paused:false, locked:true, over:false, combo:0, bestCombo:0, score:0, hints:3, player:1,
+    scores:[0,0,0], limit:d.limit, bonus:0, shareText:'' });
+  const two = S.mode === '2', tm = S.mode === 't';
 
-  const d = difficulty[cfg.diff], t = themes[cfg.theme], two = cfg.mode === '2';
-  $('timer-display').textContent = '00:00';
+  $('timer-label').textContent = tm ? 'Restante' : 'Tempo';
+  $('timer-display').textContent = tm ? fmt(S.limit) : '00:00';
+  $('timer-card').classList.remove('low');
   $('moves-display').textContent = '0';
   $('pairs-display').textContent = `0 / ${d.pairs}`;
   $('score-display').textContent = '0';
@@ -489,27 +642,35 @@ function initGame(){
   $('combo-card').classList.remove('combo-hot');
   $('hint-count').textContent = '3';
   $('hint-btn').disabled = false;
-  $('current-diff-theme').textContent = `${d.name} • ${t.name} • ${two ? '2 jogadores' : 'solo'}`;
+  $('current-diff-theme').textContent = `${MODE_NAMES[S.mode]} • ${d.name} • ${t.name}`;
   $('players').classList.toggle('show', two);
   $('score-card').style.display = two ? 'none' : '';
   $('combo-card').style.display = two ? 'none' : '';
   $('hint-btn').style.display = two ? 'none' : '';
   updatePlayers();
 
-  const icons = shuffle(t.set).slice(0, d.pairs);
-  const deck = shuffle([...icons, ...icons]);
+  let icons, deck;
+  if(S.mode === 'd'){
+    const rng = mulberry32(hashStr('tdp-' + dateKey()));
+    icons = shuffle(t.set, rng).slice(0, d.pairs);
+    deck = shuffle([...icons, ...icons], rng);
+  } else {
+    icons = shuffle(t.set).slice(0, d.pairs);
+    deck = shuffle([...icons, ...icons]);
+  }
   grid.className = `memory-grid ${d.cls}`;
   grid.innerHTML = '';
-  deck.forEach((icon, i) => {
+  deck.forEach((sym, i) => {
     const c = document.createElement('button');
-    c.type = 'button'; c.className = 'card'; c.dataset.symbol = icon;
+    c.type = 'button'; c.className = 'card'; c.dataset.symbol = sym;
     c.setAttribute('aria-label', `Carta ${i+1}, virada para baixo`);
-    c.innerHTML = `<div class="card-inner"><div class="card-back">TP</div><div class="card-front" aria-hidden="true">${icon}</div></div>`;
+    c.innerHTML = `<div class="card-inner"><div class="card-back">TP</div><div class="card-front" aria-hidden="true">${symbolHTML(sym)}</div></div>`;
     c.addEventListener('click', () => flipCard(c));
     grid.appendChild(c);
   });
 
-  // Espiadinha inicial
+  Music.start();
+
   const cards = [...grid.children];
   if(cfg.peek){
     setTimeout(() => { if(gen === S.gen) cards.forEach(c => c.classList.add('flipped')); }, 350);
@@ -523,40 +684,39 @@ function initGame(){
   }
 }
 
-/* ========== Lógica ========== */
+/* ================= Lógica ================= */
 function flipCard(card){
   if(S.locked || S.paused || S.over || card.classList.contains('flipped') || card.classList.contains('matched')) return;
   if(!S.running){ S.running = true; startTimer(); }
   AudioFX.flip(); AudioFX.buzz(8);
   card.classList.add('flipped');
-  card.setAttribute('aria-label', `Carta ${card.dataset.symbol}`);
+  card.setAttribute('aria-label', `Carta ${symbolLabel(card.dataset.symbol)}`);
   S.flipped.push(card);
   if(S.flipped.length === 2){
     S.moves++; $('moves-display').textContent = S.moves;
     checkMatch();
   }
 }
-
-function floatText(card, text, color){
+function floatText(card, text, color, dx = 0){
   const r = card.getBoundingClientRect();
   const f = document.createElement('div');
   f.className = 'floating'; f.textContent = text; f.style.color = color;
-  f.style.left = (r.left + r.width/2) + 'px'; f.style.top = (r.top + r.height/3) + 'px';
+  f.style.left = (r.left + r.width/2 + dx) + 'px'; f.style.top = (r.top + r.height/3) + 'px';
   document.body.appendChild(f); setTimeout(() => f.remove(), 1000);
 }
-
 function checkMatch(){
   const [a, b] = S.flipped;
-  const two = cfg.mode === '2';
-  const d = difficulty[cfg.diff];
+  const gen = S.gen, two = S.mode === '2', d = difficulty[S.diff];
+  S.locked = true;
   if(a.dataset.symbol === b.dataset.symbol){
     S.flipped = [];
-    S.locked = true;
     setTimeout(() => {
+      if(gen !== S.gen || S.over) return;
       AudioFX.match(); AudioFX.buzz(30);
-      [a, b].forEach(c => { c.classList.add('matched'); if(two) c.classList.add('by-p' + S.player); c.disabled = false; });
+      [a, b].forEach(c => { c.classList.add('matched'); if(two) c.classList.add('by-p' + S.player); });
       S.matched++;
       $('pairs-display').textContent = `${S.matched} / ${d.pairs}`; bump('pairs-card');
+      say('Par encontrado');
       if(two){
         S.scores[S.player]++; updatePlayers();
       } else {
@@ -566,32 +726,28 @@ function checkMatch(){
         floatText(b, `+${gain}`, '#ffe600');
         if(S.combo > 1) AudioFX.combo(S.combo);
         updateSoloStats();
+        if(S.mode === 't'){ S.bonus += 3; floatText(a, '+3s', '#00ff66', -10); renderTime(); }
       }
       S.locked = false;
-      if(S.matched === d.pairs) setTimeout(handleWin, 450);
+      if(S.matched === d.pairs) setTimeout(() => { if(gen === S.gen && !S.over) handleWin(); }, 450);
     }, 250);
   } else {
-    S.locked = true;
     setTimeout(() => {
+      if(gen !== S.gen || S.over) return;
       AudioFX.miss(); AudioFX.buzz([20,40,20]);
       a.classList.add('wrong'); b.classList.add('wrong');
+      say('Não combinou');
     }, 280);
-    const gen = S.gen;
     setTimeout(() => {
-      if(gen !== S.gen) return;
+      if(gen !== S.gen || S.over) return;
       [a, b].forEach(c => { c.classList.remove('flipped', 'wrong'); c.setAttribute('aria-label', 'Carta virada para baixo'); });
       S.flipped = [];
       if(two){ S.player = S.player === 1 ? 2 : 1; updatePlayers(); }
-      else {
-        S.combo = 0;
-        if(S.score > 0){ S.score = Math.max(0, S.score - 10); }
-        updateSoloStats();
-      }
+      else { S.combo = 0; S.score = Math.max(0, S.score - 10); updateSoloStats(); }
       S.locked = false;
     }, 950);
   }
 }
-
 function updateSoloStats(){
   $('score-display').textContent = S.score; bump('score-card');
   $('combo-display').textContent = 'x' + S.combo;
@@ -603,9 +759,9 @@ function updatePlayers(){
   $('player2').classList.toggle('turn', S.player === 2);
 }
 
-/* ========== Dica ========== */
+/* ================= Dica ================= */
 function useHint(){
-  if(cfg.mode !== '1' || S.locked || S.paused || S.over || S.hints <= 0) return;
+  if(S.mode === '2' || S.locked || S.paused || S.over || S.hints <= 0 || !gameScreen.classList.contains('active')) return;
   const free = [...grid.children].filter(c => !c.classList.contains('matched') && !c.classList.contains('flipped'));
   let pair = null;
   if(S.flipped.length === 1){
@@ -615,7 +771,7 @@ function useHint(){
     const groups = {};
     free.forEach(c => (groups[c.dataset.symbol] = groups[c.dataset.symbol] || []).push(c));
     const complete = Object.values(groups).filter(g => g.length === 2);
-    if(complete.length) pair = complete[Math.floor(Math.random()*complete.length)];
+    if(complete.length) pair = complete[Math.floor(Math.random() * complete.length)];
   }
   if(!pair) return;
   if(!S.running){ S.running = true; startTimer(); }
@@ -626,79 +782,147 @@ function useHint(){
 }
 $('hint-btn').addEventListener('click', useHint);
 
-/* ========== Vitória ========== */
-function stars(){
-  const eff = difficulty[cfg.diff].pairs / Math.max(1, S.moves);
+/* ================= Fim de jogo ================= */
+function starRating(){
+  const eff = difficulty[S.diff].pairs / Math.max(1, S.moves);
   return eff >= 0.65 ? 3 : eff >= 0.4 ? 2 : 1;
 }
-function handleWin(){
-  S.over = true; S.running = false; stopTimer();
-  AudioFX.win(); AudioFX.buzz([60,40,60,40,120]);
-  const d = difficulty[cfg.diff], two = cfg.mode === '2';
+function finishCommon(){
+  S.over = true; S.running = false; stopTimer(); Music.stop();
+  closeModal('pause-modal'); S.paused = false; grid.style.visibility = '';
+  $('timer-card').classList.remove('low');
   $('final-time').textContent = fmt(S.seconds);
   $('final-moves').textContent = S.moves;
-  $('final-score-card').style.display = two ? 'none' : '';
-  let record = false;
-
-  if(two){
-    const [, p1, p2] = S.scores;
+  $('streak-badge').style.display = 'none';
+  $('new-record-badge').style.display = 'none';
+  $('share-btn').style.display = 'none';
+}
+function handleLose(){
+  if(S.over) return;
+  finishCommon();
+  AudioFX.lose(); AudioFX.buzz([100,50,100]);
+  const d = difficulty[S.diff];
+  $('win-title').textContent = '⏰ Tempo esgotado!';
+  $('win-sub').textContent = `Você achou ${S.matched} de ${d.pairs} pares.`;
+  $('win-stars').innerHTML = '';
+  $('final-score-card').style.display = '';
+  $('final-score').textContent = S.score;
+  openModal('win-modal');
+}
+function handleWin(){
+  if(S.over) return;
+  const mode = S.mode, d = difficulty[S.diff];
+  // captura o tempo restante antes de parar o cronômetro
+  stopTimer(); tick();
+  const remain = mode === 't' ? remaining() : 0;
+  finishCommon();
+  AudioFX.win(); AudioFX.buzz([60,40,60,40,120]);
+  $('final-score-card').style.display = mode === '2' ? 'none' : '';
+  if(mode === '2'){
+    const p1 = S.scores[1], p2 = S.scores[2];
     $('win-title').textContent = p1 === p2 ? '🤝 Empate!' : `🏆 Jogador ${p1 > p2 ? 1 : 2} venceu!`;
     $('win-sub').textContent = `Placar: ${p1} x ${p2}`;
     $('win-stars').innerHTML = '';
+    addRecord({ mode:'2', diff:S.diff, theme:S.theme, p1, p2, seconds:S.seconds, moves:S.moves });
   } else {
-    const timeBonus = Math.max(0, d.pairs * 6 - S.seconds) * 2;
+    const timeBonus = mode === 't' ? remain * 3 : Math.max(0, d.pairs * 6 - S.seconds) * 2;
     S.score += timeBonus;
-    const st = stars();
+    const st = starRating();
     $('final-score').textContent = S.score;
-    $('win-title').textContent = '🎉 Parabéns!';
+    $('win-title').textContent = mode === 'd' ? '📅 Desafio concluído!' : '🎉 Parabéns!';
     $('win-sub').textContent = `Melhor combo: x${S.bestCombo} • Bônus de tempo: +${timeBonus}`;
     $('win-stars').innerHTML = [1,2,3].map(i => `<span class="${i <= st ? 'on' : ''}">★</span>`).join('');
-    record = saveScore(st);
+    const rec = addRecord({ mode, diff:S.diff, theme:S.theme, score:S.score, seconds:S.seconds, moves:S.moves, stars:st, day:mode === 'd' ? dateKey() : undefined });
+    $('new-record-badge').style.display = rec ? 'inline-block' : 'none';
+    if(mode === 'd'){
+      const n = bumpStreak();
+      const sb = $('streak-badge'); sb.textContent = `🔥 Sequência: ${n} dia${n > 1 ? 's' : ''}`; sb.style.display = 'inline-block';
+    }
+    const starsTxt = '⭐'.repeat(st);
+    S.shareText = `Telas do Passado — ${MODE_NAMES[mode]}${mode === 'd' ? ' ' + dateKey() : ' (' + d.name + ')'}\n${starsTxt} ${S.score} pts • ${fmt(S.seconds)} • ${S.moves} jogadas • combo x${S.bestCombo}\n${location.href.split('#')[0]}`;
+    $('share-btn').style.display = '';
   }
-  $('new-record-badge').style.display = record ? 'inline-block' : 'none';
   confetti();
   openModal('win-modal');
 }
+async function shareResult(){
+  const text = S.shareText; if(!text) return;
+  try{ if(navigator.share){ await navigator.share({ text }); return; } }catch(e){ if(e && e.name === 'AbortError') return; }
+  try{ await navigator.clipboard.writeText(text); toast('Resultado copiado!'); }
+  catch(e){ window.prompt('Copie seu resultado:', text); }
+}
+$('share-btn').addEventListener('click', shareResult);
 
-/* ========== Recordes ========== */
-let histFilter = 'medium';
-function saveScore(st){
-  const h = Store.get(KEY_HISTORY, []);
-  const best = h.filter(x => x.mode === '1' && x.diff === cfg.diff).reduce((m,x) => Math.max(m, x.score), -1);
-  const isRecord = S.score > best;
-  h.push({ mode:'1', diff:cfg.diff, theme:cfg.theme, score:S.score, seconds:S.seconds, moves:S.moves, stars:st, date:new Date().toLocaleDateString('pt-BR') });
-  h.sort((a,b) => b.score - a.score);
-  // mantém os 15 melhores de cada dificuldade
-  const count = {}; const trimmed = h.filter(x => (count[x.diff] = (count[x.diff]||0) + 1) <= 15);
-  Store.set(KEY_HISTORY, trimmed);
+function bumpStreak(){
+  const today = dateKey(), y = new Date(); y.setDate(y.getDate() - 1);
+  const st = Store.get(KEY_STREAK, { last:'', n:0 });
+  if(st.last === today) return st.n || 1;
+  const n = st.last === dateKey(y) ? (st.n || 0) + 1 : 1;
+  Store.set(KEY_STREAK, { last:today, n });
+  return n;
+}
+
+/* ================= Recordes ================= */
+function addRecord(r){
+  const h = getHistory();
+  let isRecord = false;
+  if(r.mode !== '2'){
+    const best = h.filter(x => x.mode === r.mode && (r.mode === 'd' ? x.day === r.day : x.diff === r.diff)).reduce((m,x) => Math.max(m, x.score), -1);
+    isRecord = r.score > best;
+  }
+  r.date = new Date().toLocaleDateString('pt-BR'); r.ts = Date.now();
+  h.push(r);
+  const groupKey = x => x.mode === '1' ? '1' + x.diff : x.mode;
+  h.sort((a, b) => (a.mode === '2' && b.mode === '2') ? (b.ts || 0) - (a.ts || 0) : (b.score || 0) - (a.score || 0));
+  const count = {};
+  Store.set(KEY_HISTORY, h.filter(x => (count[groupKey(x)] = (count[groupKey(x)] || 0) + 1) <= 15));
   return isRecord;
 }
+let histTab = 'medium';
+const HIST_TABS = [
+  { k:'easy', l:'Fácil', f:x => x.mode === '1' && x.diff === 'easy' },
+  { k:'medium', l:'Médio', f:x => x.mode === '1' && x.diff === 'medium' },
+  { k:'hard', l:'Difícil', f:x => x.mode === '1' && x.diff === 'hard' },
+  { k:'hardest', l:'Dificílimo', f:x => x.mode === '1' && x.diff === 'hardest' },
+  { k:'t', l:'⏱ Relógio', f:x => x.mode === 't' },
+  { k:'d', l:'📅 Diário', f:x => x.mode === 'd' },
+  { k:'2', l:'👥 2P', f:x => x.mode === '2' }
+];
 function renderHistory(){
-  $('history-tabs').innerHTML = Object.entries(difficulty).map(([k,d]) =>
-    `<button class="tab ${k === histFilter ? 'active' : ''}" data-d="${k}">${d.name}</button>`).join('');
-  $('history-tabs').querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => { histFilter = t.dataset.d; renderHistory(); }));
-  const list = Store.get(KEY_HISTORY, []).filter(x => x.diff === histFilter).sort((a,b) => b.score - a.score).slice(0, 10);
+  $('history-tabs').innerHTML = HIST_TABS.map(t => `<button class="tab ${t.k === histTab ? 'active' : ''}" data-k="${t.k}">${t.l}</button>`).join('');
+  $('history-tabs').querySelectorAll('.tab').forEach(b => b.addEventListener('click', () => { histTab = b.dataset.k; renderHistory(); }));
+  const tab = HIST_TABS.find(t => t.k === histTab) || HIST_TABS[1];
+  let list = getHistory().filter(tab.f);
+  list = histTab === '2' ? list.sort((a,b) => (b.ts||0) - (a.ts||0)).slice(0, 10) : list.sort((a,b) => b.score - a.score).slice(0, 10);
   const box = $('history-list');
-  if(!list.length){ box.innerHTML = '<p style="text-align:center;opacity:.6;padding:1rem">Nenhum recorde nesta dificuldade ainda!</p>'; return; }
-  box.innerHTML = list.map((x,i) => `
-    <div class="history-item">
-      <div style="display:flex;gap:.5rem;align-items:center">
-        <span class="pos">${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i+1) + 'º'}</span>
-        <div><strong>${x.score} pts</strong> <span style="color:var(--accent-yellow)">${'★'.repeat(x.stars || 0)}</span>
-        <div class="meta">${x.date} • ${(themes[x.theme] || {}).name || ''}</div></div>
-      </div>
-      <div style="text-align:right;font-size:.8rem"><i class="fa-solid fa-clock"></i> ${fmt(x.seconds)}<br><i class="fa-solid fa-arrows-rotate"></i> ${x.moves}</div>
-    </div>`).join('');
+  if(!list.length){ box.innerHTML = '<p style="text-align:center;opacity:.6;padding:1rem">Nenhum registro aqui ainda!</p>'; return; }
+  const th = x => (themes[x.theme] || {}).name || '';
+  box.innerHTML = list.map((x, i) => {
+    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i+1) + 'º';
+    if(x.mode === '2'){
+      const w = x.p1 === x.p2 ? 'Empate' : `Jogador ${x.p1 > x.p2 ? 1 : 2} venceu`;
+      return `<div class="history-item"><div><strong>${x.p1} x ${x.p2}</strong> <span style="opacity:.8">• ${w}</span>
+        <div class="meta">${x.date} • ${difficulty[x.diff].name} • ${th(x)}</div></div>
+        <div style="text-align:right;font-size:.8rem"><i class="fa-solid fa-clock"></i> ${fmt(x.seconds)}<br><i class="fa-solid fa-arrows-rotate"></i> ${x.moves}</div></div>`;
+    }
+    const extra = x.mode === 't' ? ` • ${difficulty[x.diff].name}` : '';
+    return `<div class="history-item"><div style="display:flex;gap:.5rem;align-items:center"><span class="pos">${medal}</span>
+      <div><strong>${x.score} pts</strong> <span style="color:var(--accent-yellow)">${'★'.repeat(x.stars || 0)}</span>
+      <div class="meta">${x.date}${extra} • ${th(x)}</div></div></div>
+      <div style="text-align:right;font-size:.8rem"><i class="fa-solid fa-clock"></i> ${fmt(x.seconds)}<br><i class="fa-solid fa-arrows-rotate"></i> ${x.moves}</div></div>`;
+  }).join('');
 }
 
-/* ========== Confete (canvas) ========== */
+/* ================= Confete ================= */
 function confetti(){
-  const cv = $('confetti'), ctx = cv.getContext('2d');
+  const cv = $('confetti');
+  let ctx = null; try{ ctx = cv.getContext('2d'); }catch(e){}
+  if(!ctx) return;
   const dpr = window.devicePixelRatio || 1;
-  cv.width = innerWidth * dpr; cv.height = innerHeight * dpr; ctx.scale(dpr, dpr);
+  cv.width = innerWidth * dpr; cv.height = innerHeight * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   const colors = ['#00f3ff','#ff007f','#ffe600','#00ff66','#ffffff'];
   const parts = Array.from({length:140}, () => ({
-    x: innerWidth/2 + (Math.random()-.5)*160, y: innerHeight*0.45,
+    x: innerWidth/2 + (Math.random()-.5)*160, y: innerHeight*.45,
     vx: (Math.random()-.5)*14, vy: -Math.random()*14 - 4, g: .35 + Math.random()*.2,
     s: 5 + Math.random()*6, r: Math.random()*6, vr: (Math.random()-.5)*.4, c: colors[Math.floor(Math.random()*colors.length)]
   }));
@@ -714,32 +938,25 @@ function confetti(){
   })();
 }
 
-/* ========== Atalhos de teclado ========== */
+/* ================= Teclado ================= */
 document.addEventListener('keydown', e => {
   if(e.ctrlKey || e.metaKey || e.altKey) return;
-  const inGame = gameScreen.classList.contains('active');
-  const k = e.key.toLowerCase();
+  const k = e.key.toLowerCase(), inGame = gameScreen.classList.contains('active');
   if(k === 'escape'){
     document.querySelectorAll('.modal-overlay.active').forEach(m => {
       if(m.id === 'pause-modal') resumeGame(); else if(m.id !== 'win-modal') m.classList.remove('active');
     });
   }
-  if(k === 'm'){ cfg.sound = !cfg.sound; syncMenu(); saveCfg(); }
+  if(k === 'm') toggleMusic();
+  if(k === 's') toggleSound();
   if(!inGame) return;
   if(k === 'p'){ S.paused ? resumeGame() : pauseGame(); }
-  if(k === 'r'){ initGame(); }
-  if(k === 'h'){ useHint(); }
+  if(k === 'r') initGame();
+  if(k === 'h') useHint();
 });
 
-/* ========== Boot ========== */
+/* ================= Boot ================= */
 buildThemeButtons();
-// botão rápido de som no cabeçalho do jogo
-(function(){
-  const b = document.createElement('button');
-  b.className = 'btn-icon'; b.id = 'sound-quick'; b.title = 'Som (M)'; b.setAttribute('aria-label', 'Ligar ou desligar o som');
-  b.addEventListener('click', () => { cfg.sound = !cfg.sound; syncMenu(); saveCfg(); AudioFX.flip(); });
-  document.querySelector('.header .tools').prepend(b);
-})();
 syncMenu();
 </script>
 </body>
