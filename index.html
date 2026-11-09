@@ -289,6 +289,7 @@ button{font-family:inherit;color:inherit}
     <ul class="how">
       <li>Vire duas cartas por vez e encontre os pares. O tempo só começa na <strong>primeira carta virada</strong>.</li>
       <li><strong>Solo:</strong> acertos seguidos formam um <strong>combo</strong> e valem mais pontos. Errar custa 10 pontos.</li>
+      <li><strong>Estrelas ⭐:</strong> dependem de poucas jogadas <em>e</em> de muitos pontos ao mesmo tempo. Terminou a partida, ganhou ao menos 1.</li>
       <li><strong>2 Jogadores:</strong> quem acerta joga de novo; quem erra passa a vez. Vence quem tiver mais pares.</li>
       <li><strong>Contra o Relógio:</strong> o tempo é limitado, mas cada par encontrado devolve 3 segundos.</li>
       <li><strong>Desafio do Dia:</strong> todo mundo recebe o mesmo tabuleiro no mesmo dia. Jogue todo dia para manter a sequência 🔥.</li>
@@ -783,9 +784,19 @@ function useHint(){
 $('hint-btn').addEventListener('click', useHint);
 
 /* ================= Fim de jogo ================= */
+/* Estrelas: é preciso cumprir os DOIS limites (jogadas e pontos) da faixa.
+   Concluiu a partida = no mínimo 1 estrela. Calculado antes do bônus de tempo. */
+const STAR_RULES = {
+  easy:    { m3:6,  p3:500,  m2:10, p2:200  },
+  medium:  { m3:13, p3:1500, m2:20, p2:600  },
+  hard:    { m3:20, p3:3200, m2:34, p2:1200 },
+  hardest: { m3:25, p3:5600, m2:40, p2:2500 }
+};
 function starRating(){
-  const eff = difficulty[S.diff].pairs / Math.max(1, S.moves);
-  return eff >= 0.65 ? 3 : eff >= 0.4 ? 2 : 1;
+  const r = STAR_RULES[S.diff];
+  if(S.moves <= r.m3 && S.score >= r.p3) return 3;
+  if(S.moves <= r.m2 && S.score >= r.p2) return 2;
+  return 1;
 }
 function finishCommon(){
   S.over = true; S.running = false; stopTimer(); Music.stop();
@@ -826,8 +837,8 @@ function handleWin(){
     addRecord({ mode:'2', diff:S.diff, theme:S.theme, p1, p2, seconds:S.seconds, moves:S.moves });
   } else {
     const timeBonus = mode === 't' ? remain * 3 : Math.max(0, d.pairs * 6 - S.seconds) * 2;
+    const st = starRating();   // antes do bônus de tempo, para ele não inflar a classificação
     S.score += timeBonus;
-    const st = starRating();
     $('final-score').textContent = S.score;
     $('win-title').textContent = mode === 'd' ? '📅 Desafio concluído!' : '🎉 Parabéns!';
     $('win-sub').textContent = `Melhor combo: x${S.bestCombo} • Bônus de tempo: +${timeBonus}`;
