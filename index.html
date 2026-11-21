@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0f0c1b">
 <title>Jogo da Memória - Telas do Passado</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -58,11 +57,14 @@ button{font-family:inherit;color:inherit}
 }
 .btn-option small{display:block;font-size:.68rem;opacity:.75;font-weight:600;margin-top:2px}
 .btn-option:hover{border-color:var(--accent-neon);background:rgba(0,243,255,.1)}
+.btn-option.theme-locked{opacity:.5}
 .btn-option.active{background:var(--accent-neon);color:#000;border-color:var(--accent-neon);box-shadow:0 0 12px rgba(0,243,255,.5);font-weight:700}
 .toggles{display:flex;flex-wrap:wrap;gap:.45rem}
 .toggle{flex:1 1 105px}
 .toggle.active{background:rgba(0,255,102,.18);border-color:var(--accent-green);color:#fff;box-shadow:0 0 10px rgba(0,255,102,.25)}
-.toggle .fa-solid{margin-right:.3rem}
+.toggle .ic{margin-right:.3rem}
+.ic{width:1.05em;height:1.05em;vertical-align:-.15em;flex:none}
+.card,.btn,.btn-icon,.btn-option{touch-action:manipulation}
 .daily-info{display:none;margin:-.3rem 0 .9rem;padding:.5rem .7rem;border-radius:10px;border:1px dashed var(--accent-yellow);background:rgba(255,230,0,.07);font-size:.9rem;text-align:left}
 .daily-info.show{display:block}
 
@@ -74,7 +76,7 @@ button{font-family:inherit;color:inherit}
 .btn-secondary:hover{background:rgba(255,255,255,.16)}
 .btn-danger{background:#dc2626;color:#fff}.btn-danger:hover{background:#ef4444}
 .action-bar{display:flex;flex-direction:column;gap:.6rem;margin-top:.8rem}
-.row{display:flex;gap:.5rem}.row>*{flex:1}
+.row{display:flex;gap:.5rem;flex-wrap:wrap}.row>*{min-width:0}.row>*{flex:1}
 
 /* ===== JOGO ===== */
 .header{width:100%;display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem;gap:.5rem}
@@ -110,7 +112,7 @@ button{font-family:inherit;color:inherit}
 
 .board-wrap{width:100%;display:flex;justify-content:center}
 .memory-grid{display:grid;gap:.55rem;width:100%;justify-content:center;grid-template-columns:repeat(var(--cols),1fr);max-width:calc(var(--cols)*118px)}
-.memory-grid.easy{--cols:4}.memory-grid.medium{--cols:4}.memory-grid.hard{--cols:6}.memory-grid.hardest{--cols:8}
+.memory-grid.easy{--cols:4}.memory-grid.medium{--cols:4}.memory-grid.hard{--cols:6}.memory-grid.hardest{--cols:8}.memory-grid.master{--cols:8}
 
 .card{aspect-ratio:1;perspective:900px;cursor:pointer;background:none;border:none;padding:0;container-type:inline-size;border-radius:12px;position:relative}
 .card-inner{position:relative;width:100%;height:100%;transition:transform .45s cubic-bezier(.4,0,.2,1);transform-style:preserve-3d;border-radius:12px}
@@ -170,6 +172,7 @@ button{font-family:inherit;color:inherit}
 @media (max-width:550px){
   .main-title{font-size:1.8rem}
   .memory-grid.hard,.memory-grid.hardest{--cols:4}
+  .memory-grid.master{--cols:5}
   .memory-grid{gap:.4rem}
   .options-grid{grid-template-columns:repeat(2,1fr)}
   .stat-value{font-size:1.05rem}
@@ -187,6 +190,8 @@ button{font-family:inherit;color:inherit}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><symbol id="i-arrow-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></symbol><symbol id="i-arrows-rotate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 01-15.5 6.3M3 12A9 9 0 0118.5 5.7M21 4v5h-5M3 20v-5h5"/></symbol><symbol id="i-book-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2zM22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></symbol><symbol id="i-bullseye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol><symbol id="i-circle-question" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 015.8 1c0 2-3 3-3 3M12 17h.01"/></symbol><symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol><symbol id="i-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="i-fire" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.4-.5-2-1-3-1.1-2.1-.2-4 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.2.4-2.3 1-3a2.5 2.5 0 002.5 2.5z"/></symbol><symbol id="i-gamepad" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12h4M8 10v4M15 13h.01M18 11h.01"/><rect x="2" y="6" width="20" height="12" rx="4"/></symbol><symbol id="i-house" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></symbol><symbol id="i-layer-group" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l10 5-10 5L2 7zM2 12l10 5 10-5M2 17l10 5 10-5"/></symbol><symbol id="i-lightbulb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 00-4 12.7c.6.5 1 1.2 1 2.3h6c0-1.1.4-1.8 1-2.3A7 7 0 0012 2z"/></symbol><symbol id="i-music" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></symbol><symbol id="i-palette" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="1"/><circle cx="17.5" cy="10.5" r="1"/><circle cx="8.5" cy="7.5" r="1"/><circle cx="6.5" cy="12.5" r="1"/><path d="M12 2a10 10 0 000 20c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.300-.3-.3-.5-.8-.5-1.200 0-1.100.9-2 2-2h2.400a4.600 4.600 0 004.600-4.600C22 6 17.500 2 12 2z"/></symbol><symbol id="i-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></symbol><symbol id="i-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l14 9-14 9z"/></symbol><symbol id="i-rotate-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-3-6.700L21 8M21 3v5h-5"/></symbol><symbol id="i-share-nodes" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></symbol><symbol id="i-sliders" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></symbol><symbol id="i-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.9L12 17.8 5.8 21l1.2-6.9-5-4.9 6.9-1z"/></symbol><symbol id="i-stopwatch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></symbol><symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></symbol><symbol id="i-trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.500a2.500 2.500 0 010-5H6M18 9h1.500a2.500 2.500 0 000-5H18M4 22h16M10 14.700V17c0 .6-.5 1-1.200 1.200C7.800 18.700 7 20.200 7 22M14 14.700V17c0 .6.5 1 1.200 1.200 1 .5 1.800 2 1.800 3.800M18 2H6v7a6 6 0 0012 0z"/></symbol><symbol id="i-volume-high" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4zM15.500 8.500a5 5 0 010 7M19 5a10 10 0 010 14"/></symbol><symbol id="i-volume-xmark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4zM22 9l-6 6M16 9l6 6"/></symbol></defs></svg>
+
 
 <div class="sr-only" id="sr" aria-live="polite"></div>
 
@@ -198,7 +203,7 @@ button{font-family:inherit;color:inherit}
     <p class="subtitle">Viaje pelas memórias e teste sua mente!</p>
 
     <div class="config-group">
-      <span class="config-label"><i class="fa-solid fa-gamepad"></i> Modo de jogo:</span>
+      <span class="config-label"><svg class="ic" aria-hidden="true"><use href="#i-gamepad"/></svg> Modo de jogo:</span>
       <div class="options-grid modes">
         <button class="btn-option mode-btn" data-mode="1">👤 Solo<small>pontos e combos</small></button>
         <button class="btn-option mode-btn" data-mode="2">👥 2 Jogadores<small>quem acerta joga de novo</small></button>
@@ -210,34 +215,36 @@ button{font-family:inherit;color:inherit}
     <div class="daily-info" id="daily-info"></div>
 
     <div class="config-group" id="diff-group">
-      <span class="config-label"><i class="fa-solid fa-layer-group"></i> Dificuldade:</span>
+      <span class="config-label"><svg class="ic" aria-hidden="true"><use href="#i-layer-group"/></svg> Dificuldade:</span>
       <div class="options-grid" id="diff-options">
         <button class="btn-option diff-btn" data-diff="easy">Fácil (8)<small class="best"></small></button>
         <button class="btn-option diff-btn" data-diff="medium">Médio (16)<small class="best"></small></button>
         <button class="btn-option diff-btn" data-diff="hard">Difícil (24)<small class="best"></small></button>
         <button class="btn-option diff-btn" data-diff="hardest">Dificílimo (32)<small class="best"></small></button>
+        <button class="btn-option diff-btn" data-diff="master">Mestre (40)<small class="best"></small></button>
       </div>
     </div>
 
     <div class="config-group" id="theme-group">
-      <span class="config-label"><i class="fa-solid fa-palette"></i> Tema das cartas:</span>
+      <span class="config-label"><svg class="ic" aria-hidden="true"><use href="#i-palette"/></svg> Tema das cartas:</span>
       <div class="options-grid" id="theme-options"></div>
     </div>
 
     <div class="config-group">
-      <span class="config-label"><i class="fa-solid fa-sliders"></i> Opções:</span>
+      <span class="config-label"><svg class="ic" aria-hidden="true"><use href="#i-sliders"/></svg> Opções:</span>
       <div class="toggles">
         <button class="btn-option toggle" id="toggle-sound"></button>
         <button class="btn-option toggle" id="toggle-music"></button>
-        <button class="btn-option toggle" id="toggle-peek"><i class="fa-solid fa-eye"></i>Espiadinha</button>
+        <button class="btn-option toggle" id="toggle-peek"><svg class="ic" aria-hidden="true"><use href="#i-eye"/></svg>Espiadinha</button>
       </div>
     </div>
 
     <div class="action-bar">
-      <button class="btn btn-primary" id="start-game-btn"><i class="fa-solid fa-play"></i> Iniciar Jogo</button>
+      <button class="btn btn-primary" id="start-game-btn"><svg class="ic" aria-hidden="true"><use href="#i-play"/></svg> Iniciar Jogo</button>
       <div class="row">
-        <button class="btn btn-secondary" id="welcome-history-btn"><i class="fa-solid fa-trophy"></i> Recordes</button>
-        <button class="btn btn-secondary" id="instructions-btn"><i class="fa-solid fa-circle-question"></i> Como Jogar</button>
+        <button class="btn btn-secondary" id="welcome-history-btn"><svg class="ic" aria-hidden="true"><use href="#i-trophy"/></svg> Recordes</button>
+        <button class="btn btn-secondary" id="ach-btn">🏅 Conquistas</button>
+        <button class="btn btn-secondary" id="instructions-btn"><svg class="ic" aria-hidden="true"><use href="#i-circle-question"/></svg> Como Jogar</button>
       </div>
     </div>
   </div>
@@ -246,7 +253,7 @@ button{font-family:inherit;color:inherit}
 <!-- ===== JOGO ===== -->
 <div class="screen" id="game-screen">
   <header class="header">
-    <button class="btn-icon" id="back-to-menu-btn" title="Voltar ao menu" aria-label="Voltar ao menu"><i class="fa-solid fa-arrow-left"></i></button>
+    <button class="btn-icon" id="back-to-menu-btn" title="Voltar ao menu" aria-label="Voltar ao menu"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"/></svg></button>
     <div class="center">
       <h2>Telas do Passado</h2>
       <div class="sub" id="current-diff-theme"></div>
@@ -254,9 +261,9 @@ button{font-family:inherit;color:inherit}
     <div class="tools">
       <button class="btn-icon" id="sound-quick" title="Efeitos sonoros (S)" aria-label="Ligar ou desligar efeitos sonoros"></button>
       <button class="btn-icon" id="music-quick" title="Música (M)" aria-label="Ligar ou desligar a música"></button>
-      <button class="btn-icon" id="hint-btn" title="Dica (H) • -50 pontos" aria-label="Dica"><i class="fa-solid fa-lightbulb"></i><span class="badge" id="hint-count">3</span></button>
-      <button class="btn-icon" id="pause-btn" title="Pausar (P)" aria-label="Pausar"><i class="fa-solid fa-pause"></i></button>
-      <button class="btn-icon" id="restart-game-btn" title="Reiniciar (R)" aria-label="Reiniciar"><i class="fa-solid fa-rotate-right"></i></button>
+      <button class="btn-icon" id="hint-btn" title="Dica (H) • -50 pontos" aria-label="Dica"><svg class="ic" aria-hidden="true"><use href="#i-lightbulb"/></svg><span class="badge" id="hint-count">3</span></button>
+      <button class="btn-icon" id="pause-btn" title="Pausar (P)" aria-label="Pausar"><svg class="ic" aria-hidden="true"><use href="#i-pause"/></svg></button>
+      <button class="btn-icon" id="restart-game-btn" title="Reiniciar (R)" aria-label="Reiniciar"><svg class="ic" aria-hidden="true"><use href="#i-rotate-right"/></svg></button>
     </div>
   </header>
 
@@ -266,11 +273,11 @@ button{font-family:inherit;color:inherit}
   </div>
 
   <div class="stats-panel" id="stats-panel">
-    <div class="stat-card" id="timer-card"><span class="stat-label"><i class="fa-solid fa-stopwatch"></i> <span id="timer-label">Tempo</span></span><span class="stat-value" id="timer-display">00:00</span></div>
-    <div class="stat-card" id="moves-card"><span class="stat-label"><i class="fa-solid fa-arrows-rotate"></i> Jogadas</span><span class="stat-value" id="moves-display">0</span></div>
-    <div class="stat-card" id="pairs-card"><span class="stat-label"><i class="fa-solid fa-bullseye"></i> Pares</span><span class="stat-value" id="pairs-display">0 / 8</span></div>
-    <div class="stat-card" id="score-card"><span class="stat-label"><i class="fa-solid fa-star"></i> Pontos</span><span class="stat-value" id="score-display">0</span></div>
-    <div class="stat-card" id="combo-card"><span class="stat-label"><i class="fa-solid fa-fire"></i> Combo</span><span class="stat-value" id="combo-display">x0</span></div>
+    <div class="stat-card" id="timer-card"><span class="stat-label"><svg class="ic" aria-hidden="true"><use href="#i-stopwatch"/></svg> <span id="timer-label">Tempo</span></span><span class="stat-value" id="timer-display">00:00</span></div>
+    <div class="stat-card" id="moves-card"><span class="stat-label"><svg class="ic" aria-hidden="true"><use href="#i-arrows-rotate"/></svg> Jogadas</span><span class="stat-value" id="moves-display">0</span></div>
+    <div class="stat-card" id="pairs-card"><span class="stat-label"><svg class="ic" aria-hidden="true"><use href="#i-bullseye"/></svg> Pares</span><span class="stat-value" id="pairs-display">0 / 8</span></div>
+    <div class="stat-card" id="score-card"><span class="stat-label"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg> Pontos</span><span class="stat-value" id="score-display">0</span></div>
+    <div class="stat-card" id="combo-card"><span class="stat-label"><svg class="ic" aria-hidden="true"><use href="#i-fire"/></svg> Combo</span><span class="stat-value" id="combo-display">x0</span></div>
   </div>
 
   <div class="peek-banner" id="peek-banner" role="status" aria-live="polite">
@@ -282,13 +289,32 @@ button{font-family:inherit;color:inherit}
 </div>
 
 <!-- ===== MODAIS ===== -->
+<div class="modal-overlay" id="confirm-clear-modal" style="z-index:110">
+  <div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="confirm-clear-title">
+    <h2 id="confirm-clear-title">Apagar recordes?</h2>
+    <p>Todos os recordes salvos neste aparelho serão apagados.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary closeModal" data-target="confirm-clear-modal">Cancelar</button>
+      <button class="btn btn-danger" id="confirm-clear-yes">Apagar</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="ach-modal">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Conquistas">
+    <h2>🏅 Conquistas</h2>
+    <p id="ach-summary" style="margin:.2rem 0 .6rem;opacity:.85"></p>
+    <div class="history-list" id="ach-list"></div>
+    <div class="modal-actions"><button class="btn btn-secondary closeModal" data-target="ach-modal">Fechar</button></div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="history-modal">
   <div class="modal" role="dialog" aria-modal="true" aria-label="Recordes">
-    <h2><i class="fa-solid fa-trophy" style="color:#facc15"></i> Galeria de Recordes</h2>
+    <h2><svg class="ic" style="color:#facc15" aria-hidden="true"><use href="#i-trophy"/></svg> Galeria de Recordes</h2>
     <div class="tabs" id="history-tabs"></div>
     <div class="history-list" id="history-list"></div>
     <div class="modal-actions">
-      <button class="btn btn-danger" id="clear-history-btn"><i class="fa-solid fa-trash"></i> Limpar</button>
+      <button class="btn btn-danger" id="clear-history-btn"><svg class="ic" aria-hidden="true"><use href="#i-trash"/></svg> Limpar</button>
       <button class="btn btn-secondary closeModal" data-target="history-modal">Fechar</button>
     </div>
   </div>
@@ -296,7 +322,7 @@ button{font-family:inherit;color:inherit}
 
 <div class="modal-overlay" id="instructions-modal">
   <div class="modal" role="dialog" aria-modal="true" aria-label="Como jogar">
-    <h2><i class="fa-solid fa-book-open"></i> Como Jogar</h2>
+    <h2><svg class="ic" aria-hidden="true"><use href="#i-book-open"/></svg> Como Jogar</h2>
     <ul class="how">
       <li>Vire duas cartas por vez e encontre os pares. O tempo só começa na <strong>primeira carta virada</strong>.</li>
       <li><strong>Espiadinha 👀:</strong> antes de começar, todas as cartas aparecem por alguns segundos (com contagem na tela, e esse tempo <em>não</em> conta no cronômetro). Desligando-a, você joga no modo "sem espiadinha 🧠", marcado nos recordes.</li>
@@ -314,11 +340,11 @@ button{font-family:inherit;color:inherit}
 
 <div class="modal-overlay" id="pause-modal">
   <div class="modal" role="dialog" aria-modal="true" aria-label="Jogo pausado">
-    <h2><i class="fa-solid fa-pause"></i> Pausado</h2>
+    <h2><svg class="ic" aria-hidden="true"><use href="#i-pause"/></svg> Pausado</h2>
     <p style="color:var(--muted)">O tabuleiro fica escondido durante a pausa.</p>
     <div class="modal-actions">
-      <button class="btn btn-secondary" id="pause-menu-btn"><i class="fa-solid fa-house"></i> Menu</button>
-      <button class="btn btn-primary" id="resume-btn" style="margin-top:0"><i class="fa-solid fa-play"></i> Continuar</button>
+      <button class="btn btn-secondary" id="pause-menu-btn"><svg class="ic" aria-hidden="true"><use href="#i-house"/></svg> Menu</button>
+      <button class="btn btn-primary" id="resume-btn" style="margin-top:0"><svg class="ic" aria-hidden="true"><use href="#i-play"/></svg> Continuar</button>
     </div>
   </div>
 </div>
@@ -336,10 +362,10 @@ button{font-family:inherit;color:inherit}
       <div class="stat-card" id="final-score-card"><span class="stat-label">Pontos</span><span class="stat-value" id="final-score">0</span></div>
     </div>
     <div class="modal-actions">
-      <button class="btn btn-secondary" id="share-btn"><i class="fa-solid fa-share-nodes"></i> Compartilhar</button>
+      <button class="btn btn-secondary" id="share-btn"><svg class="ic" aria-hidden="true"><use href="#i-share-nodes"/></svg> Compartilhar</button>
     </div>
     <div class="modal-actions" style="margin-top:.6rem">
-      <button class="btn btn-primary" id="play-again-btn" style="margin-top:0"><i class="fa-solid fa-rotate-right"></i> Jogar de Novo</button>
+      <button class="btn btn-primary" id="play-again-btn" style="margin-top:0"><svg class="ic" aria-hidden="true"><use href="#i-rotate-right"/></svg> Jogar de Novo</button>
       <button class="btn btn-secondary" id="win-menu-btn">Menu</button>
     </div>
   </div>
@@ -348,6 +374,7 @@ button{font-family:inherit;color:inherit}
 <canvas id="confetti" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:200"></canvas>
 
 <script>
+const ic = (n) => `<svg class="ic" aria-hidden="true"><use href="#i-${n}"/></svg>`;
 'use strict';
 
 /* ================= Storage seguro ================= */
@@ -418,7 +445,8 @@ const difficulty = {
   easy:    { pairs:4,  cards:8,  name:'Fácil',      cls:'easy',    peek:1500, limit:45  },
   medium:  { pairs:8,  cards:16, name:'Médio',      cls:'medium',  peek:2200, limit:90  },
   hard:    { pairs:12, cards:24, name:'Difícil',    cls:'hard',    peek:3200, limit:150 },
-  hardest: { pairs:16, cards:32, name:'Dificílimo', cls:'hardest', peek:4200, limit:210 }
+  hardest: { pairs:16, cards:32, name:'Dificílimo', cls:'hardest', peek:4200, limit:210 },
+  master:  { pairs:20, cards:40, name:'Mestre',     cls:'master',  peek:5200, limit:270 }
 };
 const MODE_NAMES = { '1':'Solo', '2':'2 jogadores', 't':'Contra o relógio', 'd':'Desafio do dia' };
 
@@ -481,8 +509,16 @@ const Music = {
 };
 
 /* ================= Configuração e estado ================= */
+const KEY_PROG = 'tdp_memoria_v4_progresso';
+const THEME_COST = { pixel:0, retro:0, movies:0, animals:2, food:4, space:6, sports:9, nature:12 };
+function getProg(){
+  const p = Store.get(KEY_PROG, {});
+  return { stars: (p && typeof p.stars === 'object' && p.stars) || {}, ach: (p && typeof p.ach === 'object' && p.ach) || {} };
+}
+function totalStars(p = getProg()){ return Object.values(p.stars).reduce((t, v) => t + (Number(v) || 0), 0); }
+function themeUnlocked(k){ return totalStars() >= (THEME_COST[k] || 0); }
 const cfg = Object.assign({ mode:'1', diff:'medium', theme:'pixel', sound:true, music:true, peek:true }, Store.get(KEY_SETTINGS, {}));
-if(!themes[cfg.theme]) cfg.theme = 'pixel';
+if(!themes[cfg.theme] || !themeUnlocked(cfg.theme)) cfg.theme = 'pixel';
 if(!difficulty[cfg.diff]) cfg.diff = 'medium';
 if(!MODE_NAMES[cfg.mode]) cfg.mode = '1';
 function saveCfg(){ Store.set(KEY_SETTINGS, { mode:cfg.mode, diff:cfg.diff, theme:cfg.theme, sound:cfg.sound, music:cfg.music, peek:cfg.peek }); }
@@ -505,12 +541,18 @@ const welcome = $('welcome-screen'), gameScreen = $('game-screen'), grid = $('me
 /* ================= Menu ================= */
 function buildThemeButtons(){
   const box = $('theme-options');
-  box.innerHTML = Object.entries(themes).map(([k,t]) => `<button class="btn-option theme-btn" data-theme="${k}">${t.icon} ${t.name}</button>`).join('');
-  box.querySelectorAll('.theme-btn').forEach(b => b.addEventListener('click', () => { cfg.theme = b.dataset.theme; syncMenu(); saveCfg(); }));
+  box.innerHTML = Object.entries(themes).map(([k,t]) => {
+    const ok = themeUnlocked(k);
+    return `<button class="btn-option theme-btn${ok ? '' : ' theme-locked'}" data-theme="${k}" ${ok ? '' : 'aria-disabled="true"'}>${ok ? t.icon : '🔒'} ${t.name}${ok ? '' : `<small>${THEME_COST[k]} ⭐</small>`}</button>`;
+  }).join('');
+  box.querySelectorAll('.theme-btn').forEach(b => b.addEventListener('click', () => {
+    if(!themeUnlocked(b.dataset.theme)){ toast(`Tema bloqueado: junte ${THEME_COST[b.dataset.theme]} estrelas (você tem ${totalStars()}).`); return; }
+    cfg.theme = b.dataset.theme; syncMenu(); saveCfg();
+  }));
 }
 function iconToggle(btn, on, iconOn, iconOff, label){
   btn.classList.toggle('active', on);
-  btn.innerHTML = `<i class="fa-solid ${on ? iconOn : iconOff}"></i>${label}`;
+  btn.innerHTML = `${ic(on ? iconOn : iconOff)}${label}`;
 }
 function syncMenu(){
   document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === cfg.mode));
@@ -519,15 +561,15 @@ function syncMenu(){
   document.querySelectorAll('.theme-btn').forEach(b => b.classList.toggle('active', b.dataset.theme === e.theme));
   $('diff-group').classList.toggle('locked', cfg.mode === 'd');
   $('theme-group').classList.toggle('locked', cfg.mode === 'd');
-  iconToggle($('toggle-sound'), cfg.sound, 'fa-volume-high', 'fa-volume-xmark', 'Efeitos');
-  iconToggle($('toggle-music'), cfg.music, 'fa-music', 'fa-music', 'Música');
+  iconToggle($('toggle-sound'), cfg.sound, 'volume-high', 'volume-xmark', 'Efeitos');
+  iconToggle($('toggle-music'), cfg.music, 'music', 'music', 'Música');
   const forced = cfg.mode === 'd';
   $('toggle-peek').classList.toggle('active', forced || cfg.peek);
   $('toggle-peek').classList.toggle('forced', forced);
-  $('toggle-peek').innerHTML = `<i class="fa-solid fa-eye"></i>Espiadinha<small>${forced ? 'sempre ligada' : 'prévia de'} ${(difficulty[e.diff].peek / 1000).toFixed(1).replace('.', ',')}s</small>`;
+  $('toggle-peek').innerHTML = `<svg class="ic" aria-hidden="true"><use href="#i-eye"/></svg>Espiadinha<small>${forced ? 'sempre ligada' : 'prévia de'} ${(difficulty[e.diff].peek / 1000).toFixed(1).replace('.', ',')}s</small>`;
   AudioFX.enabled = cfg.sound; Music.on = cfg.music;
-  $('sound-quick').innerHTML = `<i class="fa-solid ${cfg.sound ? 'fa-volume-high' : 'fa-volume-xmark'}"></i>`;
-  $('music-quick').innerHTML = `<i class="fa-solid fa-music"></i>`;
+  $('sound-quick').innerHTML = ic(cfg.sound ? 'volume-high' : 'volume-xmark');
+  $('music-quick').innerHTML = `<svg class="ic" aria-hidden="true"><use href="#i-music"/></svg>`;
   $('sound-quick').classList.toggle('off', !cfg.sound);
   $('music-quick').classList.toggle('off', !cfg.music);
   updateBests();
@@ -591,8 +633,9 @@ document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('cli
 $('instructions-btn').addEventListener('click', () => openModal('instructions-modal'));
 $('welcome-history-btn').addEventListener('click', () => { histTab = cfg.mode === '2' ? '2' : cfg.mode === 't' ? 't' : cfg.mode === 'd' ? 'd' : cfg.diff; renderHistory(); openModal('history-modal'); });
 $('clear-history-btn').addEventListener('click', () => {
-  if(confirm('Apagar todos os recordes?')){ Store.del(KEY_HISTORY); renderHistory(); updateBests(); }
+  openModal('confirm-clear-modal');
 });
+$('confirm-clear-yes').addEventListener('click', () => { Store.del(KEY_HISTORY); renderHistory(); updateBests(); closeModal('confirm-clear-modal'); });
 
 /* ================= Cronômetro ================= */
 function remaining(){ return Math.max(0, S.limit + S.bonus - S.seconds); }
@@ -666,12 +709,13 @@ function initGame(){
   updatePlayers();
 
   let icons, deck;
+  const pool = t.set.length >= d.pairs ? t.set : t.set.concat(themes.retro.set.filter(x => !t.set.includes(x))).slice(0, Math.max(d.pairs, t.set.length));
   if(S.mode === 'd'){
     const rng = mulberry32(hashStr('tdp-' + dateKey()));
-    icons = shuffle(t.set, rng).slice(0, d.pairs);
+    icons = shuffle(pool, rng).slice(0, d.pairs);
     deck = shuffle([...icons, ...icons], rng);
   } else {
-    icons = shuffle(t.set).slice(0, d.pairs);
+    icons = shuffle(pool).slice(0, d.pairs);
     deck = shuffle([...icons, ...icons]);
   }
   grid.className = `memory-grid ${d.cls}`;
@@ -838,7 +882,8 @@ const STAR_RULES = {
   easy:    { m3:6,  p3:500,  m2:10, p2:200  },
   medium:  { m3:13, p3:1500, m2:20, p2:600  },
   hard:    { m3:20, p3:3200, m2:34, p2:1200 },
-  hardest: { m3:25, p3:5600, m2:40, p2:2500 }
+  hardest: { m3:25, p3:5600, m2:40, p2:2500 },
+  master:  { m3:31, p3:7600, m2:50, p2:3400 }
 };
 function starRating(){
   const r = STAR_RULES[S.diff];
@@ -891,12 +936,15 @@ function handleWin(){
     $('win-title').textContent = mode === 'd' ? '📅 Desafio concluído!' : '🎉 Parabéns!';
     $('win-sub').textContent = `Melhor combo: x${S.bestCombo} • Bônus de tempo: +${timeBonus}`;
     $('win-stars').innerHTML = [1,2,3].map(i => `<span class="${i <= st ? 'on' : ''}">★</span>`).join('');
+    let streakNow = 0;
     const rec = addRecord({ mode, diff:S.diff, theme:S.theme, score:S.score, seconds:S.seconds, moves:S.moves, stars:st, peek:S.peeked, day:mode === 'd' ? dateKey() : undefined });
     $('new-record-badge').style.display = rec ? 'inline-block' : 'none';
     if(mode === 'd'){
-      const n = bumpStreak();
+      const n = bumpStreak(); streakNow = n;
       const sb = $('streak-badge'); sb.textContent = `🔥 Sequência: ${n} dia${n > 1 ? 's' : ''}`; sb.style.display = 'inline-block';
     }
+    recordProgress(st, mode, { streak: streakNow });
+    buildThemeButtons(); syncMenu();
     const starsTxt = '⭐'.repeat(st);
     S.shareText = `Telas do Passado — ${MODE_NAMES[mode]}${mode === 'd' ? ' ' + dateKey() : ' (' + d.name + ')'}\n${starsTxt} ${S.score} pts • ${fmt(S.seconds)} • ${S.moves} jogadas • combo x${S.bestCombo}${S.peeked ? '' : ' • sem espiadinha 🧠'}\n${location.href.split('#')[0]}`;
     $('share-btn').style.display = '';
@@ -908,7 +956,13 @@ async function shareResult(){
   const text = S.shareText; if(!text) return;
   try{ if(navigator.share){ await navigator.share({ text }); return; } }catch(e){ if(e && e.name === 'AbortError') return; }
   try{ await navigator.clipboard.writeText(text); toast('Resultado copiado!'); }
-  catch(e){ window.prompt('Copie seu resultado:', text); }
+  catch(e){
+    try{
+      const ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly',''); ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+      document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove();
+      toast(ok ? 'Resultado copiado!' : 'Não consegui copiar. Tire um print do resultado.');
+    }catch(e2){ toast('Não consegui copiar. Tire um print do resultado.'); }
+  }
 }
 $('share-btn').addEventListener('click', shareResult);
 
@@ -922,6 +976,43 @@ function bumpStreak(){
 }
 
 /* ================= Recordes ================= */
+/* ===== Progresso: estrelas, temas que desbloqueiam e conquistas ===== */
+const ACHIEVEMENTS = [
+  { id:'first',  icon:'🎉', n:'Primeira vitória', d:'Vença uma partida.' },
+  { id:'star3',  icon:'⭐', n:'Três estrelas', d:'Ganhe 3 estrelas em qualquer nível.' },
+  { id:'hard3',  icon:'💪', n:'Memória de elefante', d:'3 estrelas no Difícil ou acima.' },
+  { id:'combo5', icon:'🔥', n:'Combo x5', d:'Acerte 5 pares seguidos.' },
+  { id:'nopeek', icon:'🙈', n:'Sem espiar', d:'Vença o Médio ou acima sem a Espiadinha.' },
+  { id:'clock',  icon:'⏱', n:'Contra o tempo', d:'Vença no modo Contra o Relógio.' },
+  { id:'streak3',icon:'📅', n:'Fiel ao desafio', d:'3 dias seguidos no Desafio do Dia.' },
+  { id:'master', icon:'👑', n:'Mestre da Memória', d:'Vença o nível Mestre.' },
+  { id:'stars10',icon:'🌟', n:'Colecionador', d:'Some 10 estrelas.' }
+];
+function recordProgress(st, mode, ctx){
+  const p = getProg(), before = totalStars(p), newly = [];
+  p.stars[S.diff] = Math.max(p.stars[S.diff] || 0, st);
+  const give = id => { if(!p.ach[id]){ p.ach[id] = Date.now(); const a = ACHIEVEMENTS.find(x => x.id === id); if(a) newly.push(a); } };
+  give('first');
+  if(st === 3) give('star3');
+  if(st === 3 && (S.diff === 'hard' || S.diff === 'hardest' || S.diff === 'master')) give('hard3');
+  if(S.bestCombo >= 5) give('combo5');
+  if(!S.peeked && S.diff !== 'easy') give('nopeek');
+  if(mode === 't') give('clock');
+  if(S.diff === 'master' && mode !== 'd') give('master');
+  if(ctx && ctx.streak >= 3) give('streak3');
+  if(totalStars(p) >= 10) give('stars10');
+  Store.set(KEY_PROG, p);
+  const unlockedThemes = Object.keys(THEME_COST).filter(k => THEME_COST[k] > before && THEME_COST[k] <= totalStars(p)).map(k => themes[k] && themes[k].name).filter(Boolean);
+  if(newly.length) toast('🏅 Conquista: ' + newly.map(a => a.icon + ' ' + a.n).join(' • '));
+  if(unlockedThemes.length) setTimeout(() => toast('🎨 Novo tema liberado: ' + unlockedThemes.join(', ')), newly.length ? 2400 : 0);
+}
+function renderAch(){
+  const p = getProg();
+  $('ach-summary').textContent = `Estrelas: ${totalStars(p)} (melhor de cada nível). Temas novos liberam com estrelas: Animais 2, Comidas 4, Galáxia 6, Esportes 9, Natureza 12.`;
+  $('ach-list').innerHTML = ACHIEVEMENTS.map(a => `<div class="history-item" style="${p.ach[a.id] ? '' : 'opacity:.45'}"><span>${p.ach[a.id] ? a.icon : '🔒'} <strong>${a.n}</strong><br><small>${a.d}</small></span></div>`).join('');
+}
+$('ach-btn').addEventListener('click', () => { renderAch(); openModal('ach-modal'); });
+
 function addRecord(r){
   const h = getHistory();
   let isRecord = false;
@@ -943,6 +1034,7 @@ const HIST_TABS = [
   { k:'medium', l:'Médio', f:x => x.mode === '1' && x.diff === 'medium' },
   { k:'hard', l:'Difícil', f:x => x.mode === '1' && x.diff === 'hard' },
   { k:'hardest', l:'Dificílimo', f:x => x.mode === '1' && x.diff === 'hardest' },
+  { k:'master', l:'Mestre', f:x => x.mode === '1' && x.diff === 'master' },
   { k:'t', l:'⏱ Relógio', f:x => x.mode === 't' },
   { k:'d', l:'📅 Diário', f:x => x.mode === 'd' },
   { k:'2', l:'👥 2P', f:x => x.mode === '2' }
@@ -962,13 +1054,13 @@ function renderHistory(){
       const w = x.p1 === x.p2 ? 'Empate' : `Jogador ${x.p1 > x.p2 ? 1 : 2} venceu`;
       return `<div class="history-item"><div><strong>${x.p1} x ${x.p2}</strong> <span style="opacity:.8">• ${w}</span>
         <div class="meta">${x.date} • ${difficulty[x.diff].name} • ${th(x)}${x.peek === false ? ' • sem espiadinha 🧠' : ''}</div></div>
-        <div style="text-align:right;font-size:.8rem"><i class="fa-solid fa-clock"></i> ${fmt(x.seconds)}<br><i class="fa-solid fa-arrows-rotate"></i> ${x.moves}</div></div>`;
+        <div style="text-align:right;font-size:.8rem"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg> ${fmt(x.seconds)}<br><svg class="ic" aria-hidden="true"><use href="#i-arrows-rotate"/></svg> ${x.moves}</div></div>`;
     }
     const extra = x.mode === 't' ? ` • ${difficulty[x.diff].name}` : '';
     return `<div class="history-item"><div style="display:flex;gap:.5rem;align-items:center"><span class="pos">${medal}</span>
       <div><strong>${x.score} pts</strong> <span style="color:var(--accent-yellow)">${'★'.repeat(x.stars || 0)}</span>
       <div class="meta">${x.date}${extra} • ${th(x)}${x.peek === false ? ' • sem espiadinha 🧠' : ''}</div></div></div>
-      <div style="text-align:right;font-size:.8rem"><i class="fa-solid fa-clock"></i> ${fmt(x.seconds)}<br><i class="fa-solid fa-arrows-rotate"></i> ${x.moves}</div></div>`;
+      <div style="text-align:right;font-size:.8rem"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg> ${fmt(x.seconds)}<br><svg class="ic" aria-hidden="true"><use href="#i-arrows-rotate"/></svg> ${x.moves}</div></div>`;
   }).join('');
 }
 
